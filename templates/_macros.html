@@ -1,0 +1,29 @@
+{% macro icon(name, cls='') -%}
+<svg class="ic {{ cls }}" aria-hidden="true"><use href="#i-{{ name }}"/></svg>
+{%- endmacro %}
+
+{% macro pill(t, status) -%}
+<span class="pill st-{{ status }}">{{ t('status.' ~ status) }}</span>
+{%- endmacro %}
+
+{% macro money(v) -%}
+<span class="tnum money">{{ '{:,.2f}'.format(v or 0).replace(',', ' ') }}&nbsp;₴</span>
+{%- endmacro %}
+
+{% macro pager(t, page, has_next, qs='') -%}
+{% if page > 1 or has_next %}
+<nav class="pager" aria-label="{{ t('pager.label') }}">
+  {% if page > 1 %}<a class="btn sm" href="?page={{ page - 1 }}{{ qs }}">← {{ t('pager.prev') }}</a>{% endif %}
+  <span>{{ t('pager.page', n=page) }}</span>
+  {% if has_next %}<a class="btn sm" href="?page={{ page + 1 }}{{ qs }}">{{ t('pager.next') }} →</a>{% endif %}
+</nav>
+{% endif %}
+{%- endmacro %}
+
+{% macro empty(text, name='box') -%}
+<div class="empty">{{ icon(name) }}<p>{{ text }}</p></div>
+{%- endmacro %}
+
+{% macro csrf(ctx) -%}
+<input type="hidden" name="csrf_token" value="{{ ctx.csrf_token }}">
+{%- endmacro %}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, money, empty, csrf %}
+{% block title %}{{ t('nav.settings') }}{% endblock %}
+{% block body %}
+<div class="page-h"><div><h1>{{ t('settings.title') }}</h1><p>{{ t('settings.sub') }}</p></div></div>
+
+{% if new_secret %}
+<div class="banner ok secret" role="alert">{{ icon('key') }}
+  <div><b>{{ t('settings.secret_once') }}</b><code class="secret-val">{{ new_secret }}</code></div></div>
+{% endif %}
+
+<div class="grid two">
+  <section class="card">
+    <div class="sec-h"><h2>{{ t('settings.mechanics') }}</h2></div>
+    <div class="tw"><table>
+      <thead><tr><th>{{ t('field.name') }}</th><th class="num">{{ t('col.rate') }}</th></tr></thead>
+      <tbody>{% for m in masters %}<tr><td>{{ m.name }}</td><td class="num">{{ money(m.rate) }}</td></tr>
+      {% else %}<tr><td colspan="2" class="faint">—</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% if can_catalog and not needs_branch %}
+    <form method="post" action="/settings/master" class="pad inline">
+      {{ csrf(ctx) }}
+      <div class="field grow"><label for="m-name">{{ t('field.name') }}</label><input id="m-name" name="name" required maxlength="120"></div>
+      <div class="field"><label for="m-rate">{{ t('settings.rate') }}</label><input id="m-rate" name="rate" value="450" inputmode="decimal" class="w-sm"></div>
+      <button class="btn">{{ icon('plus') }}{{ t('btn.add') }}</button>
+    </form>
+    {% elif can_catalog %}<p class="pad muted small">{{ t('err.pick_branch') }}</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><h2>{{ t('settings.services') }}</h2></div>
+    <div class="tw tw-scroll"><table>
+      <thead><tr><th>{{ t('col.service') }}</th><th class="num">{{ t('col.hours') }}</th><th>{{ t('settings.scope') }}</th></tr></thead>
+      <tbody>{% for sv in services %}<tr><td>{{ sv.name }}</td><td class="num">{{ '%g'|format(sv.norm_hours) }}</td>
+        <td><span class="tag">{{ t('settings.shared') if sv.branch_id is none else t('settings.branch_only') }}</span></td></tr>
+      {% else %}<tr><td colspan="3" class="faint">—</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% if can_catalog %}
+    <form method="post" action="/settings/service" class="pad inline">
+      {{ csrf(ctx) }}
+      <div class="field grow"><label for="s-name">{{ t('col.service') }}</label><input id="s-name" name="name" required maxlength="160"></div>
+      <div class="field"><label for="s-h">{{ t('col.hours') }}</label><input id="s-h" name="norm_hours" value="1" inputmode="decimal" class="w-sm"></div>
+      {% if ctx.is_net_admin %}<label class="check"><input type="checkbox" name="shared" value="1" {{ 'checked' if needs_branch }}> {{ t('settings.shared') }}</label>{% endif %}
+      <button class="btn">{{ icon('plus') }}{{ t('btn.add') }}</button>
+    </form>
+    {% endif %}
+  </section>
+</div>
+
+{% if can_team %}
+<section class="card mt" id="team">
+  <div class="sec-h"><h2>{{ t('settings.team') }}</h2><span class="muted small">{{ t('settings.plan_limit', n=ctx.plan.max_users if ctx.plan else '—') }}</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>{{ t('field.name') }}</th><th>{{ t('field.email') }}</th><th>{{ t('settings.role') }}</th><th>{{ t('settings.status') }}</th><th class="act"><span class="sr-only">{{ t('col.actions') }}</span></th></tr></thead>
+    <tbody>{% for row in team %}
+      <tr class="{{ 'row-muted' if not row.u.active }}"><td>{{ row.u.name }}</td><td class="mono">{{ row.u.email }}</td>
+        <td>{% for m in row.m %}<span class="tag">{{ t('role.' ~ m.role) }}{% if m.branch_id %} · {{ (all_branches | selectattr('id', 'equalto', m.branch_id) | map(attribute='order_prefix') | first) or '' }}{% endif %}</span> {% endfor %}</td>
+        <td>{{ t('settings.active') if row.u.active else t('settings.disabled') }}</td>
+        <td class="act">{% if row.u.id != ctx.user_id %}<form method="post" action="/settings/users/{{ row.u.id }}/toggle">{{ csrf(ctx) }}<button class="btn sm">{{ t('settings.disable') if row.u.active else t('settings.enable') }}</button></form>{% endif %}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  <form method="post" action="/settings/users" class="pad frow c4">
+    {{ csrf(ctx) }}
+    <div class="field"><label for="u-name">{{ t('field.name') }}</label><input id="u-name" name="name" required maxlength="120"></div>
+    <div class="field"><label for="u-email">{{ t('field.email') }}</label><input id="u-email" name="email" type="email" required></div>
+    <div class="field"><label for="u-pw">{{ t('field.password') }}</label><input id="u-pw" name="password" type="password" required minlength="10" autocomplete="new-password"></div>
+    <div class="field"><label for="u-role">{{ t('settings.role') }}</label><select id="u-role" name="role">{% for r in roles %}<option value="{{ r }}">{{ t('role.' ~ r) }}</option>{% endfor %}</select></div>
+    <div class="field span2"><label for="u-branch">{{ t('col.branch') }}</label><select id="u-branch" name="branch_id"><option value="">{{ t('branch.all') }}</option>{% for b in all_branches %}<option value="{{ b.id }}">{{ b.name }}</option>{% endfor %}</select></div>
+    <div class="field span2 end"><button class="btn pri">{{ icon('plus') }}{{ t('settings.add_user') }}</button></div>
+  </form>
+</section>
+
+<section class="card mt" id="branches">
+  <div class="sec-h"><h2>{{ t('settings.branches') }}</h2><span class="muted small">{{ t('settings.plan_limit', n=ctx.plan.max_branches if ctx.plan else '—') }}</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>{{ t('field.name') }}</th><th>{{ t('field.region') }}</th><th>{{ t('settings.prefix') }}</th></tr></thead>
+    <tbody>{% for b in all_branches %}<tr><td>{{ b.name }}</td><td class="muted">{{ b.region }}</td><td class="mono">{{ b.order_prefix }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <form method="post" action="/settings/branches" class="pad inline">
+    {{ csrf(ctx) }}
+    <div class="field grow"><label for="b-name">{{ t('field.name') }}</label><input id="b-name" name="name" required maxlength="120"></div>
+    <div class="field"><label for="b-region">{{ t('field.region') }}</label><input id="b-region" name="region" maxlength="80"></div>
+    <div class="field"><label for="b-prefix">{{ t('settings.prefix') }}</label><input id="b-prefix" name="prefix" required maxlength="4" class="w-sm"></div>
+    <button class="btn">{{ icon('plus') }}{{ t('btn.add') }}</button>
+  </form>
+</section>
+{% endif %}
+
+{% if can_tokens %}
+<div class="grid two mt">
+  <section class="card" id="tokens">
+    <div class="sec-h"><h2>{{ t('settings.tokens') }}</h2></div>
+    <p class="pad-x muted small">{{ t('settings.tokens_hint') }}</p>
+    {% if tokens %}
+    <ul class="list pad-x">{% for tk in tokens %}
+      <li class="{{ 'row-muted' if not tk.active }}"><span><b>{{ tk.label }}</b> <span class="mono faint">{{ tk.prefix }}…</span><br><small class="faint">{{ tk.scopes }}</small></span>
+        {% if tk.active %}<form method="post" action="/settings/tokens/{{ tk.id }}/revoke">{{ csrf(ctx) }}<button class="btn sm danger-o">{{ t('settings.revoke') }}</button></form>{% else %}<span class="tag">{{ t('settings.revoked') }}</span>{% endif %}</li>
+    {% endfor %}</ul>
+    {% endif %}
+    <form method="post" action="/settings/tokens" class="pad stack">
+      {{ csrf(ctx) }}
+      <div class="frow c2">
+        <div class="field"><label for="t-label">{{ t('settings.label') }}</label><input id="t-label" name="label" required maxlength="80" placeholder="Telegram bot"></div>
+        <div class="field"><label for="t-kind">{{ t('settings.kind') }}</label><select id="t-kind" name="kind"><option value="bot">{{ t('settings.kind_bot') }}</option><option value="integration">{{ t('settings.kind_int') }}</option></select></div>
+      </div>
+      <fieldset class="scopes"><legend>{{ t('settings.scopes') }}</legend>
+        {% for sc in scopes %}<label class="check"><input type="checkbox" name="scopes" value="{{ sc }}"> <code>{{ sc }}</code></label>{% endfor %}
+      </fieldset>
+      <button class="btn pri">{{ icon('key') }}{{ t('settings.token_create') }}</button>
+    </form>
+  </section>
+  <section class="card" id="devices">
+    <div class="sec-h"><h2>{{ t('settings.devices') }}</h2></div>
+    <p class="pad-x muted small">{{ t('settings.devices_hint') }}</p>
+    {% if devices %}
+    <ul class="list pad-x">{% for d in devices %}
+      <li class="{{ 'row-muted' if not d.active }}"><span><b>{{ d.label }}</b> <span class="mono faint">{{ d.prefix }}…</span><br><small class="faint">{{ t('settings.last_seen') }}: {{ d.last_seen_at.strftime('%d.%m %H:%M') if d.last_seen_at else '—' }}</small></span>
+        {% if d.active %}<form method="post" action="/settings/devices/{{ d.id }}/revoke">{{ csrf(ctx) }}<button class="btn sm danger-o">{{ t('settings.revoke') }}</button></form>{% else %}<span class="tag">{{ t('settings.revoked') }}</span>{% endif %}</li>
+    {% endfor %}</ul>
+    {% endif %}
+    <form method="post" action="/settings/devices" class="pad inline">
+      {{ csrf(ctx) }}
+      <div class="field grow"><label for="d-label">{{ t('settings.label') }}</label><input id="d-label" name="label" required maxlength="80" placeholder="Lviv front desk PC"></div>
+      <button class="btn">{{ icon('plus') }}{{ t('settings.add_device') }}</button>
+    </form>
+  </section>
+</div>
+{% endif %}
+{% endblock %}

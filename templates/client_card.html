@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, pill, money, pager, empty, csrf %}
+{% block title %}{{ c.name }}{% endblock %}
+{% block body %}
+<div class="page-h">
+  <div><h1>{{ c.name }} {% if c.kind != 'private' %}<span class="tag">{{ t('kind.' ~ c.kind) }}</span>{% endif %}</h1>
+    <p class="mono">{{ c.phone or '—' }}{% if c.tax_id %} · {{ t('clients.tax_id') }} {{ c.tax_id }}{% endif %}{% if c.discount %} · {{ t('field.discount') }} {{ '%g'|format(c.discount) }}%{% endif %}</p></div>
+  <div class="actions"><a class="btn ghost" href="/clients">{{ t('order.back') }}</a></div>
+</div>
+<div class="grid two">
+  <section class="card">
+    <div class="sec-h"><h2>{{ t('clients.history') }}</h2></div>
+    {% if hist %}
+    <div class="tw"><table>
+      <thead><tr><th>{{ t('col.number') }}</th><th>{{ t('col.vehicle') }}</th><th>{{ t('col.status') }}</th><th>{{ t('col.accepted') }}</th><th class="num">{{ t('col.total') }}</th></tr></thead>
+      <tbody>{% for r in hist %}
+        <tr><td><a class="strong" href="/orders/{{ r.o.id }}">{{ r.o.number }}</a></td>
+          <td>{% if r.car %}<span class="plate">{{ r.car.plate }}</span>{% endif %}</td>
+          <td>{{ pill(t, r.o.status) }}</td>
+          <td class="muted tnum">{{ r.o.accepted_at.strftime('%d.%m.%Y') if r.o.accepted_at else '—' }}</td>
+          <td class="num">{{ money(r.o.total) }}</td></tr>
+      {% endfor %}</tbody>
+    </table></div>
+    {% else %}{{ empty(t('clients.no_history'), 'orders') }}{% endif %}
+  </section>
+  <div class="stack-lg">
+    <section class="card pad">
+      <h2 class="block-h">{{ t('clients.vehicles') }}<span class="line"></span></h2>
+      {% if cars %}<ul class="list">{% for car in cars %}
+        <li><span>{{ car.make }} {{ car.model }} {{ car.year or '' }}</span><span class="plate">{{ car.plate }}</span></li>
+      {% endfor %}</ul>{% else %}<p class="faint">—</p>{% endif %}
+    </section>
+    <section class="card pad">
+      <h2 class="block-h">{{ icon('ai') }}{{ t('clients.telegram') }}<span class="line"></span></h2>
+      <p class="muted small">{{ t('clients.telegram_hint') }}</p>
+      {% if tg_code %}
+        <p class="code-big" aria-live="polite"><code>/start {{ tg_code }}</code></p>
+        <p class="faint small">{{ t('clients.telegram_once') }}</p>
+      {% elif can_edit %}
+        <form method="post" action="/clients/{{ c.id }}/telegram-code">{{ csrf(ctx) }}<button class="btn">{{ icon('key') }}{{ t('clients.telegram_btn') }}</button></form>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{{ pager(t, page, has_next) }}
+{% endblock %}

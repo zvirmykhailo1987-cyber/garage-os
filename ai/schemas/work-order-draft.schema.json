@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "WorkOrderDraft",
+  "description": "Draft work order from a voice note or free text. A human confirms it (Tier 2).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["vehicle", "complaint", "works", "parts", "confidence", "needs_clarification"],
+  "properties": {
+    "vehicle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plate", "make_model"],
+      "properties": {
+        "plate": {"type": ["string", "null"], "maxLength": 20},
+        "make_model": {"type": ["string", "null"], "maxLength": 80}
+      }
+    },
+    "customer": {"type": ["string", "null"], "maxLength": 160},
+    "complaint": {"type": "string", "maxLength": 2000},
+    "works": {
+      "type": "array", "maxItems": 20,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["service", "norm_hours"],
+        "properties": {
+          "service": {"type": "string", "maxLength": 160},
+          "norm_hours": {"type": ["number", "null"], "minimum": 0, "maximum": 200}
+        }
+      }
+    },
+    "parts": {
+      "type": "array", "maxItems": 40,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["name", "qty"],
+        "properties": {
+          "name": {"type": "string", "maxLength": 160},
+          "qty": {"type": "number", "minimum": 0, "maximum": 10000}
+        }
+      }
+    },
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "needs_clarification": {"type": "array", "maxItems": 10, "items": {"type": "string", "maxLength": 200}}
+  }
+}

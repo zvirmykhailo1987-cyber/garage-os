@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf %}
+{% block title %}{{ t('nav.migration') }}{% endblock %}
+{% block body %}
+<div class="page-h"><div><h1>{{ t('mig.title') }}</h1><p>{{ t('mig.sub') }}</p></div></div>
+<ol class="steps" aria-label="{{ t('mig.steps') }}">
+  <li class="{{ 'on' if not mapping }}">{{ t('mig.s1') }}</li><li class="{{ 'on' if mapping and not report }}">{{ t('mig.s2') }}</li>
+  <li class="{{ 'on' if mapping and not report }}">{{ t('mig.s3') }}</li><li class="{{ 'on' if report }}">{{ t('mig.s4') }}</li>
+</ol>
+{% if report %}
+<div class="banner {{ 'ok' if report.reconciled else 'crit' }}" role="status">{{ icon('check') }}
+  <span>{{ t('mig.report', imported=report.imported, skipped=report.skipped, total=report.source_rows) }}
+  {{ t('mig.reconciled') if report.reconciled else t('mig.not_reconciled') }}</span></div>
+{% endif %}
+<div class="grid two">
+  <form method="post" action="/migration/preview" class="card pad stack">
+    {{ csrf(ctx) }}
+    <div class="field"><label for="csv">{{ t('mig.csv') }}</label>
+      <textarea id="csv" name="csv_text" rows="9" class="mono" spellcheck="false">{{ csv_text }}</textarea></div>
+    <button class="btn">{{ icon('search') }}{{ t('mig.preview') }}</button>
+  </form>
+  <section class="card">
+    <div class="sec-h"><h2>{{ t('mig.mapping') }}</h2>{% if row_count %}<span class="muted small">{{ t('mig.rows', n=row_count) }}</span>{% endif %}</div>
+    {% if mapping %}
+    <div class="tw"><table>
+      <thead><tr><th>{{ t('mig.source') }}</th><th>{{ t('mig.target') }}</th><th class="num">{{ t('mig.confidence') }}</th><th>{{ t('mig.review') }}</th></tr></thead>
+      <tbody>{% for m in mapping %}<tr><td class="mono">{{ m.source }}</td><td><b>{{ m.target }}</b> <small class="faint">{{ m.transform }}</small></td>
+        <td class="num">{{ (m.confidence * 100) | round | int }}%</td><td>{% if m.needs_review %}<span class="lockchip">{{ t('mig.check') }}</span>{% else %}<span class="faint">—</span>{% endif %}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% if not report %}
+      {% if needs_branch %}<p class="pad muted small">{{ t('err.pick_branch') }}</p>{% else %}
+      <form method="post" action="/migration/apply" class="pad stack">
+        {{ csrf(ctx) }}
+        <input type="hidden" name="csv_text" value="{{ csv_text }}">
+        <label class="check"><input type="checkbox" name="confirm" value="yes" required> {{ t('mig.confirm') }}</label>
+        <button class="btn pri">{{ icon('migration') }}{{ t('mig.apply') }}</button>
+      </form>{% endif %}
+    {% endif %}
+    {% else %}<p class="pad faint">{{ t('mig.empty') }}</p>{% endif %}
+  </section>
+</div>
+{% if rows %}
+<section class="card mt">
+  <div class="sec-h"><h2>{{ t('mig.sample') }}</h2></div>
+  <div class="tw"><table><thead><tr>{% for h in headers %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for r in rows %}<tr>{% for cell in r %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,7 @@
+{% from "_macros.html" import icon %}
+<section class="err-page">
+  <p class="err-code tnum">{{ code }}</p>
+  <h1>{{ t('error.' ~ code ~ '.title') if has_key('error.' ~ code ~ '.title') else t('error.generic.title') }}</h1>
+  <p class="muted">{{ t(detail) if detail and has_key(detail) else (t('error.' ~ code ~ '.text') if has_key('error.' ~ code ~ '.text') else t('error.generic.text')) }}</p>
+  <div class="inline center-x"><a class="btn pri" href="/">{{ icon('dash') }}{{ t('error.home') }}</a></div>
+</section>

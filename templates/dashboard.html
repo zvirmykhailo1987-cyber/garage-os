@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, pill, money, empty %}
+{% block title %}{{ t('nav.dashboard') }}{% endblock %}
+{% block body %}
+<div class="page-h">
+  <div><h1>{{ t('dash.title') }}</h1>
+    <p>{{ active_branch.name if active_branch else t('branch.all') }} · {{ t('dash.sub') }}</p></div>
+  {% if ctx.can('orders.create') %}<div class="actions"><a class="btn pri" href="/orders/new">{{ icon('plus') }}{{ t('nav.intake') }}</a></div>{% endif %}
+</div>
+
+<div class="grid kpis">
+  <a class="card kpi accent" href="/orders?status=in_progress">
+    <span class="lbl">{{ icon('orders') }}{{ t('dash.in_work') }}</span>
+    <span class="val tnum">{{ kpi.in_work }}</span>
+  </a>
+  <a class="card kpi" href="/orders?status=done">
+    <span class="lbl">{{ icon('check') }}{{ t('dash.ready') }}</span>
+    <span class="val tnum">{{ kpi.ready }}</span>
+  </a>
+  <div class="card kpi">
+    <span class="lbl">{{ icon('billing') }}{{ t('dash.revenue_week') }}</span>
+    <span class="val">{{ money(kpi.revenue_week) }}</span>
+    <span class="sub faint">{{ t('dash.today') }}: {{ money(kpi.revenue_today) }}</span>
+  </div>
+  <a class="card kpi{{ ' warn' if kpi.low_parts }}" href="/parts?low=1">
+    <span class="lbl">{{ icon('parts') }}{{ t('dash.low_stock') }}</span>
+    <span class="val tnum">{{ kpi.low_parts }}</span>
+  </a>
+</div>
+
+<div class="grid two wl mt">
+  <section class="card">
+    <div class="sec-h"><h2>{{ t('dash.recent') }}</h2><a href="/orders">{{ t('dash.all_orders') }} →</a></div>
+    {% if rows %}
+    <div class="tw"><table>
+      <thead><tr><th>{{ t('col.number') }}</th><th>{{ t('col.vehicle') }}</th><th>{{ t('col.client') }}</th><th>{{ t('col.status') }}</th><th class="num">{{ t('col.total') }}</th></tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr><td><a href="/orders/{{ r.o.id }}" class="strong">{{ r.o.number }}</a></td>
+          <td>{% if r.car %}<span class="trunc narrow">{{ r.car.make }} {{ r.car.model }}</span>{% else %}—{% endif %}</td>
+          <td><span class="trunc narrow">{{ r.client.name if r.client else '—' }}</span></td>
+          <td>{{ pill(t, r.o.status) }}</td>
+          <td class="num">{{ money(r.o.total) }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}{{ empty(t('orders.empty'), 'orders') }}{% endif %}
+  </section>
+
+  <div class="stack-lg">
+    <section class="card pad">
+      <h2 class="h-sm">{{ t('dash.pipeline') }}</h2>
+      <ul class="pipeline">
+        {% for st in STATUSES %}
+        <li><a href="/orders?status={{ st }}"><span class="dot st-{{ st }}"></span><span>{{ t('status.' ~ st) }}</span><b class="tnum">{{ counts.get(st, 0) }}</b></a></li>
+        {% endfor %}
+      </ul>
+    </section>
+    <section class="card">
+      <div class="sec-h"><h2>{{ t('dash.low_stock') }}</h2><a href="/parts?low=1">{{ t('nav.stock') }} →</a></div>
+      {% if low_parts %}
+      <ul class="list">
+        {% for p in low_parts %}
+        <li><span class="trunc">{{ p.name }} <span class="faint mono">{{ p.sku }}</span></span><span class="tnum {{ 'crit' if p.qty <= 0 else 'warn' }}">{{ '%g'|format(p.qty) }} / {{ '%g'|format(p.min_qty) }}</span></li>
+        {% endfor %}
+      </ul>
+      {% else %}{{ empty(t('dash.stock_ok'), 'check') }}{% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

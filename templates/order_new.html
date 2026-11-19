@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf %}
+{% block title %}{{ t('intake.title') }}{% endblock %}
+{% block body %}
+<div class="page-h">
+  <div><h1>{{ t('intake.title') }}</h1><p>{{ active_branch.name if active_branch else t('branch.all') }}</p></div>
+</div>
+
+{% if needs_branch %}
+<div class="banner warn">{{ icon('pin') }}<span>{{ t('err.pick_branch') }}</span></div>
+{% else %}
+<div class="grid two">
+  <form method="post" action="/orders/new" class="card pad" id="intake-form">
+    {{ csrf(ctx) }}
+    <h2 class="block-h">{{ t('intake.vehicle') }}<span class="line"></span></h2>
+    <div class="frow c3">
+      <div class="field"><label for="plate">{{ t('field.plate') }}</label>
+        <div class="inline nowrap"><input id="plate" name="plate" maxlength="20" value="{{ form.plate or '' }}" autocapitalize="characters">
+          <button type="button" class="btn" id="plate-lookup" title="{{ t('intake.lookup_hint') }}">{{ icon('search') }}<span class="sr-only">{{ t('intake.lookup') }}</span></button></div>
+        <small class="faint" id="plate-result" aria-live="polite"></small></div>
+      <div class="field"><label for="make">{{ t('field.make') }}</label><input id="make" name="make" maxlength="60" value="{{ form.make or '' }}"></div>
+      <div class="field"><label for="model">{{ t('field.model') }}</label><input id="model" name="model" maxlength="60" value="{{ form.model or '' }}"></div>
+      <div class="field"><label for="year">{{ t('field.year') }}</label><input id="year" name="year" inputmode="numeric" maxlength="4" value="{{ form.year or '' }}"></div>
+      <div class="field span2"><label for="vin">VIN</label><input id="vin" name="vin" maxlength="20" value="{{ form.vin or '' }}"></div>
+    </div>
+    <h2 class="block-h">{{ t('intake.customer') }}<span class="line"></span></h2>
+    <div class="frow c2">
+      <div class="field"><label for="client_name">{{ t('field.name') }}</label><input id="client_name" name="client_name" maxlength="160" autocomplete="off" value="{{ form.client_name or '' }}"></div>
+      <div class="field"><label for="client_phone">{{ t('field.phone') }}</label><input id="client_phone" name="client_phone" type="tel" maxlength="40" value="{{ form.client_phone or '' }}"></div>
+    </div>
+    <h2 class="block-h">{{ t('intake.job') }}<span class="line"></span></h2>
+    <div class="field"><label for="complaint">{{ t('field.complaint') }}</label>
+      <textarea id="complaint" name="complaint" rows="3" maxlength="2000" required>{{ form.complaint or '' }}</textarea></div>
+    <div class="frow c2">
+      <div class="field"><label for="master_id">{{ t('field.mechanic') }}</label>
+        <select id="master_id" name="master_id"><option value="">—</option>
+          {% for m in masters %}<option value="{{ m.id }}" {{ 'selected' if form.master_id == m.id|string }}>{{ m.name }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="box">{{ t('field.bay') }}</label><input id="box" name="box" maxlength="20" value="{{ form.box or '' }}"></div>
+    </div>
+    <button class="btn pri lg">{{ icon('check') }}{{ t('intake.submit') }}</button>
+  </form>
+
+  {% if ctx.can('ai.use') %}
+  <aside class="card pad ai-card">
+    <h2 class="block-h">{{ icon('ai') }}{{ t('intake.ai') }}<span class="line"></span></h2>
+    <p class="muted small">{{ t('intake.ai_hint') }}</p>
+    <div class="field"><label for="ai-text">{{ t('intake.ai_note') }}</label>
+      <textarea id="ai-text" rows="5" maxlength="2000" placeholder="{{ t('intake.ai_ph') }}"></textarea></div>
+    <button type="button" class="btn" id="ai-draft-btn">{{ icon('ai') }}{{ t('intake.ai_btn') }}</button>
+    <p class="small" id="ai-note" aria-live="polite"></p>
+    <div id="ai-works" class="ai-out" hidden>
+      <h3 class="h-xs">{{ t('intake.ai_works') }}</h3><ul id="ai-works-list"></ul>
+      <h3 class="h-xs">{{ t('intake.ai_check') }}</h3><ul id="ai-need-list"></ul>
+      <p class="faint small">{{ t('intake.ai_footer') }}</p>
+    </div>
+    <p class="hitl">{{ t('ai.hitl') }}</p>
+  </aside>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

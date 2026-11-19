@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, money, pager, empty, csrf %}
+{% block title %}{{ t('nav.stock') }}{% endblock %}
+{% block body %}
+<div class="page-h"><div><h1>{{ t('stock.title') }}</h1><p>{{ active_branch.name if active_branch else t('branch.all') }}</p></div></div>
+<section class="card">
+  <form method="get" action="/parts" class="pad inline">
+    <div class="field grow"><label for="q">{{ t('stock.search') }}</label><input id="q" name="q" value="{{ q }}" placeholder="{{ t('stock.search_ph') }}"></div>
+    <label class="check"><input type="checkbox" name="low" value="1" {{ 'checked' if low }}> {{ t('stock.low_only') }}</label>
+    <button class="btn">{{ icon('search') }}{{ t('btn.filter') }}</button>
+  </form>
+  {% if parts %}
+  <div class="tw"><table>
+    <thead><tr><th>SKU</th><th>{{ t('col.name') }}</th><th>{{ t('stock.brand') }}</th><th>{{ t('stock.location') }}</th><th class="num">{{ t('stock.qty') }}</th><th class="num">{{ t('stock.min') }}</th><th class="num">{{ t('col.price') }}</th></tr></thead>
+    <tbody>{% for p in parts %}
+      <tr class="{{ 'row-crit' if p.qty <= 0 else ('row-warn' if p.qty <= p.min_qty else '') }}">
+        <td class="mono">{{ p.sku }}</td><td>{{ p.name }}</td><td class="muted">{{ p.brand }}</td><td class="mono muted">{{ p.location or '—' }}</td>
+        <td class="num strong">{{ '%g'|format(p.qty) }}</td><td class="num muted">{{ '%g'|format(p.min_qty) }}</td><td class="num">{{ money(p.price) }}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}{{ empty(t('stock.empty'), 'parts') }}{% endif %}
+</section>
+{{ pager(t, page, has_next, '&q=' ~ (q|urlencode) ~ ('&low=1' if low else '')) }}
+
+{% if can_edit %}
+<section class="card pad mt">
+  <h2 class="block-h">{{ t('stock.new') }}<span class="line"></span></h2>
+  {% if needs_branch %}<p class="muted small">{{ t('err.pick_branch') }}</p>{% else %}
+  <form method="post" action="/parts/new" class="frow c4">
+    {{ csrf(ctx) }}
+    <div class="field"><label for="n-sku">SKU</label><input id="n-sku" name="sku" required maxlength="60"></div>
+    <div class="field span2"><label for="n-name">{{ t('col.name') }}</label><input id="n-name" name="name" required maxlength="160"></div>
+    <div class="field"><label for="n-brand">{{ t('stock.brand') }}</label><input id="n-brand" name="brand" maxlength="60"></div>
+    <div class="field"><label for="n-qty">{{ t('stock.qty') }}</label><input id="n-qty" name="qty" value="0" inputmode="decimal"></div>
+    <div class="field"><label for="n-min">{{ t('stock.min') }}</label><input id="n-min" name="min_qty" value="0" inputmode="decimal"></div>
+    <div class="field"><label for="n-cost">{{ t('stock.cost') }}</label><input id="n-cost" name="cost" value="0" inputmode="decimal"></div>
+    <div class="field"><label for="n-price">{{ t('col.price') }}</label><div class="inline nowrap"><input id="n-price" name="price" value="0" inputmode="decimal"><button class="btn pri">{{ t('btn.add') }}</button></div></div>
+  </form>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

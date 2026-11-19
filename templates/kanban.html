@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, pill, money %}
+{% block title %}{{ t('nav.board') }}{% endblock %}
+{% block body %}
+<div class="page-h">
+  <div><h1>{{ t('board.title') }}</h1><p>{{ t('board.sub', n=per_column) }}</p></div>
+  {% if ctx.can('orders.create') %}<div class="actions"><a class="btn pri" href="/orders/new">{{ icon('plus') }}{{ t('nav.intake') }}</a></div>{% endif %}
+</div>
+<div class="toast" id="kb-toast" role="status" aria-live="polite" hidden></div>
+<div class="kb" data-msg-conflict="{{ t('board.conflict') }}" data-msg-error="{{ t('board.error') }}" data-msg-forbidden="{{ t('board.forbidden') }}">
+  {% for st in STATUSES %}
+  <section class="kb-col" aria-labelledby="kb-{{ st }}">
+    <h2 id="kb-{{ st }}">{{ pill(t, st) }}<span class="cnt">{{ counts.get(st, 0) }}</span></h2>
+    <div class="kb-body" data-status="{{ st }}">
+      {% for r in board[st] %}
+      <a class="kb-card" href="/orders/{{ r.o.id }}" data-oid="{{ r.o.id }}" data-version="{{ r.o.version }}" draggable="true">
+        <span class="t">{{ r.o.number }}</span>
+        <span class="m">{% if r.car %}{{ r.car.make }} {{ r.car.model }} <span class="plate">{{ r.car.plate }}</span>{% endif %}</span>
+        <span class="m"><span class="trunc">{{ r.client.name if r.client else '—' }}</span>{{ money(r.o.total) }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+</div>
+<p class="faint small mt">{{ t('board.hint') }}</p>
+{% endblock %}

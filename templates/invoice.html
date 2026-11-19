@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="{{ lang }}" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ t('inv.title', number=o.number) }}</title>
+  <link rel="stylesheet" href="/static/app.css?v={{ STATIC_VERSION }}">
+  <script src="/static/theme.js?v={{ STATIC_VERSION }}"></script>
+  <script src="/static/app.js?v={{ STATIC_VERSION }}" defer></script>
+</head>
+<body class="paper">
+{% include "_icons.svg" %}
+{% from "_macros.html" import icon, money %}
+<main class="invoice">
+  <div class="page-h">
+    <div><h1>{{ t('inv.title', number=o.number) }}</h1>
+      <p>{{ car_label }}{% if car %} · <span class="plate">{{ car.plate }}</span>{% endif %} · {{ o.accepted_at.strftime('%d.%m.%Y') if o.accepted_at }}</p></div>
+    <div class="actions no-print">
+      <button type="button" class="btn pri" id="print-btn">{{ icon('print') }}{{ t('inv.print') }}</button>
+      <a class="btn ghost" href="/orders/{{ o.id }}">{{ t('order.back') }}</a>
+    </div>
+  </div>
+  <div class="card pad frow c2">
+    <div><span class="label">{{ t('inv.from') }}</span><p><b>{{ ctx.org.name }}</b><br>{{ branch.name if branch }}{% if branch and branch.address %}<br>{{ branch.address }}{% endif %}</p></div>
+    <div><span class="label">{{ t('inv.to') }}</span><p><b>{{ client.name if client else '—' }}</b>{% if client and client.tax_id %}<br>{{ t('clients.tax_id') }} {{ client.tax_id }}{% endif %}{% if client and client.phone %}<br>{{ client.phone }}{% endif %}</p></div>
+  </div>
+  <div class="tw mt"><table>
+    <thead><tr><th>{{ t('inv.item') }}</th><th class="num">{{ t('inv.qty') }}</th><th class="num">{{ t('col.price') }}</th><th class="num">{{ t('col.sum') }}</th></tr></thead>
+    <tbody>
+      {% for w in works %}<tr><td>{{ w.service }}</td><td class="num">{{ '%g'|format(w.norm_hours) }} h</td><td class="num">{{ money(w.rate) }}</td><td class="num">{{ money(w.norm_hours * w.rate) }}</td></tr>{% endfor %}
+      {% for p in parts %}<tr><td>{{ p.name }} <span class="faint mono">{{ p.sku }}</span></td><td class="num">{{ '%g'|format(p.qty) }}</td><td class="num">{{ money(p.price) }}</td><td class="num">{{ money(p.qty * p.price) }}</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+  <div class="totals">
+    <div class="totrow"><span class="muted">{{ t('order.works') }}</span>{{ money(totals.works) }}</div>
+    <div class="totrow"><span class="muted">{{ t('order.parts') }}</span>{{ money(totals.parts) }}</div>
+    <div class="totrow"><span class="muted">{{ t('order.discount', pct='%g'|format(o.discount_pct)) }}</span><span>−{{ money(totals.discount) }}</span></div>
+    <div class="totrow big"><span>{{ t('inv.due') }}</span>{{ money(totals.total) }}</div>
+    <div class="totrow"><span class="faint">{{ t('order.vat', pct='%g'|format(o.vat_pct)) }}</span><span class="faint">{{ money(totals.vat) }}</span></div>
+  </div>
+  <p class="faint small mt">{{ t('inv.note') }}</p>
+</main>
+</body>
+</html>

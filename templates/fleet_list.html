@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, money, empty %}
+{% block title %}{{ t('nav.fleet') }}{% endblock %}
+{% block body %}
+<div class="page-h"><div><h1>{{ t('fleet.title') }}</h1><p>{{ t('fleet.sub') }}</p></div></div>
+<section class="card">
+  {% if rows %}
+  <div class="tw"><table>
+    <thead><tr><th>{{ t('fleet.contract') }}</th><th>{{ t('col.client') }}</th><th class="num">{{ t('fleet.vehicles') }}</th><th class="num">{{ t('fleet.terms') }}</th><th class="num">{{ t('fleet.spend') }}</th></tr></thead>
+    <tbody>{% for r in rows %}
+      <tr><td><a class="strong" href="/fleet/{{ r.c.id }}">{{ r.c.name }}</a></td><td>{{ r.client.name if r.client else '—' }}</td>
+        <td class="num">{{ r.count }}</td><td class="num">{{ t('fleet.days', n=r.c.credit_terms_days) }}</td><td class="num">{{ money(r.total) }}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}{{ empty(t('fleet.empty'), 'fleet') }}{% endif %}
+</section>
+{% endblock %}

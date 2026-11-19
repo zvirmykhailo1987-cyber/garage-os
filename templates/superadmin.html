@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf %}
+{% block title %}{{ t('op.title') }}{% endblock %}
+{% block solo %}
+<div class="op">
+  <header class="op-top">
+    <span class="brand-link"><span class="logo" aria-hidden="true">S</span><b>{{ t('app.name') }}</b><span class="tag">{{ t('op.badge') }}</span></span>
+    <div class="auth-tools">
+      <button type="button" class="icon-btn" id="theme-toggle" aria-label="{{ t('theme.toggle') }}">{{ icon('sun', 'sun') }}{{ icon('moon', 'moon') }}</button>
+      <nav class="lang" aria-label="{{ t('lang.label') }}">{% for code, label in locales.items() %}<a href="/lang/{{ code }}?next={{ next_q }}" class="{{ 'on' if code == lang }}" lang="{{ code }}">{{ code | upper }}</a>{% endfor %}</nav>
+      <form method="post" action="/logout">{{ csrf(ctx) }}<button class="btn sm">{{ icon('logout') }}{{ t('nav.logout') }}</button></form>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="page-h"><div><h1>{{ t('op.title') }}</h1><p>{{ t('op.sub') }}</p></div></div>
+    {% include "_flash.html" %}
+    <section class="card">
+      <div class="tw"><table>
+        <thead><tr><th>{{ t('op.org') }}</th><th class="num">{{ t('settings.branches') }}</th><th class="num">{{ t('settings.team') }}</th><th class="num">{{ t('nav.orders') }}</th><th>{{ t('op.plan_status') }}</th></tr></thead>
+        <tbody>{% for r in rows %}
+          <tr><td><b>{{ r.org.name }}</b><br><small class="faint mono">{{ r.org.slug }}</small></td>
+            <td class="num">{{ r.branches }}</td><td class="num">{{ r.users }}</td><td class="num">{{ r.orders }}</td>
+            <td><form method="post" action="/superadmin/{{ r.org.id }}" class="inline nowrap">{{ csrf(ctx) }}
+              <label class="sr-only" for="pl-{{ r.org.id }}">{{ t('op.plan') }}</label>
+              <select id="pl-{{ r.org.id }}" name="plan_code">{% for p in plans %}<option value="{{ p.code }}" {{ 'selected' if p.code == r.org.plan_code }}>{{ p.title }}</option>{% endfor %}</select>
+              <label class="sr-only" for="stt-{{ r.org.id }}">{{ t('settings.status') }}</label>
+              <select id="stt-{{ r.org.id }}" name="status">{% for st in statuses %}<option value="{{ st }}" {{ 'selected' if st == r.org.status }}>{{ t('bill.status.' ~ st) }}</option>{% endfor %}</select>
+              <button class="btn sm">{{ t('btn.save') }}</button></form></td></tr>
+        {% endfor %}</tbody>
+      </table></div>
+    </section>
+    <p class="faint small mt">{{ t('op.note') }}</p>
+  </div>
+</div>
+{% endblock %}

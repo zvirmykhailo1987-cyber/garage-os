@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, pill, money, csrf %}
+{% block title %}{{ o.number }}{% endblock %}
+{% block body %}
+<div class="page-h">
+  <div><h1>{{ o.number }} {{ pill(t, o.status) }}</h1>
+    <p>{% if car %}{{ car.make }} {{ car.model }} · <span class="plate">{{ car.plate }}</span> · {% endif %}{{ client.name if client else t('order.no_client') }}</p></div>
+  <div class="actions">
+    <a class="btn" href="/orders/{{ o.id }}/invoice">{{ icon('print') }}{{ t('order.invoice') }}</a>
+    <a class="btn ghost" href="/orders">{{ t('order.back') }}</a>
+  </div>
+</div>
+
+{% if conflict %}<div class="banner crit" role="alert">{{ icon('alert') }}<span>{{ t('order.conflict') }}</span></div>{% endif %}
+
+<form method="post" action="/orders/{{ o.id }}/edit" id="order-form">
+{{ csrf(ctx) }}
+<input type="hidden" name="expected_version" value="{{ o.version }}">
+<fieldset class="grid two" {{ 'disabled' if not can_edit }}>
+  <section class="card pad">
+    <h2 class="block-h">{{ t('intake.vehicle') }}<span class="line"></span></h2>
+    <div class="frow c3">
+      <div class="field"><label for="f-plate">{{ t('field.plate') }}</label><input id="f-plate" name="plate" maxlength="20" value="{{ car.plate if car else '' }}"></div>
+      <div class="field"><label for="f-make">{{ t('field.make') }}</label><input id="f-make" name="make" maxlength="60" value="{{ car.make if car else '' }}"></div>
+      <div class="field"><label for="f-model">{{ t('field.model') }}</label><input id="f-model" name="model" maxlength="60" value="{{ car.model if car else '' }}"></div>
+      <div class="field"><label for="f-year">{{ t('field.year') }}</label><input id="f-year" name="year" inputmode="numeric" maxlength="4" value="{{ car.year if car and car.year else '' }}"></div>
+      <div class="field"><label for="f-mileage">{{ t('field.mileage') }}</label><input id="f-mileage" name="mileage" inputmode="numeric" value="{{ car.mileage if car and car.mileage is not none else '' }}"></div>
+      <div class="field"><label for="f-engine">{{ t('field.engine') }}</label><input id="f-engine" name="engine" maxlength="40" value="{{ car.engine if car else '' }}"></div>
+      <div class="field span2"><label for="f-vin">VIN</label><input id="f-vin" name="vin" maxlength="20" value="{{ car.vin if car else '' }}"></div>
+      <div class="field"><label for="f-color">{{ t('field.color') }}</label><input id="f-color" name="color" maxlength="30" value="{{ car.color if car else '' }}"></div>
+    </div>
+    <div class="field"><label for="f-complaint">{{ t('field.complaint') }}</label><textarea id="f-complaint" name="complaint" rows="2" maxlength="2000">{{ o.complaint }}</textarea></div>
+  </section>
+
+  <section class="card pad">
+    <h2 class="block-h">{{ t('order.order') }}<span class="line"></span></h2>
+    <div class="frow c2">
+      <div class="field"><label for="f-status">{{ t('col.status') }}</label>
+        <select id="f-status" name="status">{% for st in STATUSES %}{% if st != 'paid' or can_pricing or o.status == 'paid' %}<option value="{{ st }}" {{ 'selected' if o.status == st }}>{{ t('status.' ~ st) }}</option>{% endif %}{% endfor %}</select></div>
+      <div class="field"><label for="f-master">{{ t('field.mechanic') }}</label>
+        <select id="f-master" name="master_id"><option value="">—</option>
+          {% for m in masters %}<option value="{{ m.id }}" {{ 'selected' if o.master_id == m.id }}>{{ m.name }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="f-box">{{ t('field.bay') }}</label><input id="f-box" name="box" maxlength="20" value="{{ o.box }}"></div>
+      {% if can_pricing %}
+      <div class="field"><label for="f-disc">{{ t('field.discount') }}</label><input id="f-disc" name="discount_pct" inputmode="decimal" value="{{ '%g'|format(o.discount_pct) }}"></div>
+      <div class="field"><label for="f-pay">{{ t('field.payment') }}</label>
+        <select id="f-pay" name="pay_method">{% for pm in pay_methods %}<option value="{{ pm }}" {{ 'selected' if o.pay_method == pm }}>{{ t('pay.' ~ pm) }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="f-paid">{{ t('field.paid') }}</label>
+        <select id="f-paid" name="paid"><option value="false" {{ 'selected' if not o.paid }}>{{ t('common.no') }}</option><option value="true" {{ 'selected' if o.paid }}>{{ t('common.yes') }}</option></select></div>
+      {% else %}
+      <div class="field"><span class="label">{{ t('field.payment') }}</span><p class="ro">{{ t('pay.' ~ o.pay_method) }} · {{ t('common.yes') if o.paid else t('common.no') }}</p></div>
+      {% endif %}
+    </div>
+    {% if can_edit %}<button class="btn pri block">{{ t('btn.save') }} <span class="faint-on">v{{ o.version }}</span></button>{% endif %}
+  </section>
+</fieldset>
+</form>
+
+<section class="card mt">
+  <div class="sec-h"><h2>{{ t('order.works') }}</h2><span class="muted tnum">{{ money(totals.works) }}</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>{{ t('col.service') }}</th><th>{{ t('field.mechanic') }}</th><th class="num">{{ t('col.hours') }}</th><th class="num">{{ t('col.rate') }}</th><th class="num">{{ t('col.sum') }}</th><th class="act"><span class="sr-only">{{ t('col.actions') }}</span></th></tr></thead>
+    <tbody>
+    {% for w in works %}
+      <tr><td>{{ w.service }}</td><td class="muted">{{ master_by_id[w.master_id].name if w.master_id in master_by_id else '—' }}</td>
+        <td class="num">{{ '%g'|format(w.norm_hours) }}</td><td class="num">{{ '%.0f'|format(w.rate) }}</td>
+        <td class="num">{{ money(w.norm_hours * w.rate) }}</td>
+        <td class="act">{% if can_edit %}<form method="post" action="/orders/{{ o.id }}/work/{{ w.id }}/delete">{{ csrf(ctx) }}<button class="btn danger" aria-label="{{ t('btn.delete') }} {{ w.service }}">✕</button></form>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="6" class="faint">{{ t('order.no_works') }}</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+  {% if can_edit %}
+  <form method="post" action="/orders/{{ o.id }}/work" class="pad frow c4 add-row">
+    {{ csrf(ctx) }}
+    <div class="field span2"><label for="w-svc">{{ t('col.service') }}</label><input id="w-svc" name="service" list="svc" maxlength="160" required placeholder="{{ t('order.service_ph') }}">
+      <datalist id="svc">{% for sv in services %}<option value="{{ sv.name }}"></option>{% endfor %}</datalist></div>
+    <div class="field"><label for="w-m">{{ t('field.mechanic') }}</label><select id="w-m" name="master_id"><option value="">—</option>{% for m in masters %}<option value="{{ m.id }}">{{ m.name }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="w-h">{{ t('col.hours') }}</label><div class="inline nowrap"><input id="w-h" name="norm_hours" value="1" inputmode="decimal"><button class="btn">+</button></div></div>
+  </form>
+  {% endif %}
+</section>
+
+<section class="card mt">
+  <div class="sec-h"><h2>{{ t('order.parts') }}</h2><span class="muted tnum">{{ money(totals.parts) }}</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>SKU</th><th>{{ t('col.name') }}</th><th class="num">{{ t('col.qty') }}</th><th class="num">{{ t('col.price') }}</th><th class="num">{{ t('col.sum') }}</th><th class="act"><span class="sr-only">{{ t('col.actions') }}</span></th></tr></thead>
+    <tbody>
+    {% for p in parts %}
+      <tr><td class="mono">{{ p.sku or '—' }}</td><td>{{ p.name }}</td><td class="num">{{ '%g'|format(p.qty) }}</td>
+        <td class="num">{{ money(p.price) }}</td><td class="num">{{ money(p.qty * p.price) }}</td>
+        <td class="act">{% if can_edit %}<form method="post" action="/orders/{{ o.id }}/part/{{ p.id }}/delete">{{ csrf(ctx) }}<button class="btn danger" aria-label="{{ t('btn.delete') }} {{ p.name }}">✕</button></form>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="6" class="faint">{{ t('order.no_parts') }}</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+  {% if can_edit %}
+  <form method="post" action="/orders/{{ o.id }}/part" class="pad frow c4 add-row">
+    {{ csrf(ctx) }}
+    <div class="field"><label for="p-sku">SKU</label><input id="p-sku" name="sku" list="stk" maxlength="60">
+      <datalist id="stk">{% for st in stock %}<option value="{{ st.sku }}">{{ st.name }}</option>{% endfor %}</datalist></div>
+    <div class="field"><label for="p-name">{{ t('col.name') }}</label><input id="p-name" name="name" maxlength="160" placeholder="{{ t('order.part_ph') }}"></div>
+    <div class="field"><label for="p-qty">{{ t('col.qty') }}</label><input id="p-qty" name="qty" value="1" inputmode="decimal"></div>
+    <div class="field"><label for="p-price">{{ t('col.price') }}</label><div class="inline nowrap"><input id="p-price" name="price" inputmode="decimal" placeholder="{{ t('order.price_ph') }}"><button class="btn">+</button></div></div>
+  </form>
+  {% endif %}
+</section>
+
+<div class="grid two mt">
+  <section class="card pad">
+    <h2 class="block-h">{{ t('order.summary') }}<span class="line"></span></h2>
+    <div class="totrow"><span class="muted">{{ t('order.works') }}</span>{{ money(totals.works) }}</div>
+    <div class="totrow"><span class="muted">{{ t('order.parts') }}</span>{{ money(totals.parts) }}</div>
+    <div class="totrow"><span class="muted">{{ t('order.discount', pct='%g'|format(o.discount_pct)) }}</span><span>−{{ money(totals.discount) }}</span></div>
+    <div class="totrow big"><span>{{ t('order.total') }}</span>{{ money(totals.total) }}</div>
+    <div class="totrow"><span class="faint">{{ t('order.vat', pct='%g'|format(o.vat_pct)) }}</span><span class="faint">{{ money(totals.vat) }}</span></div>
+    {% if o.fiscal_no %}<p class="small mono faint">{{ t('order.fiscal_no') }}: {{ o.fiscal_no }}</p>{% endif %}
+  </section>
+
+  <section class="card pad">
+    <h2 class="block-h">{{ t('order.customer_actions') }} <span class="lockchip">{{ t('common.demo_mode') }}</span><span class="line"></span></h2>
+    {% if can_notify %}
+    <form method="post" action="/orders/{{ o.id }}/notify" class="stack">
+      {{ csrf(ctx) }}
+      <div class="inline">
+        <div class="field"><label for="n-ch">{{ t('order.channel') }}</label>
+          <select id="n-ch" name="channel">{% for ch in channels %}<option value="{{ ch }}">{{ t('channel.' ~ ch) }}</option>{% endfor %}</select></div>
+        <label class="check"><input type="checkbox" name="confirm" value="yes" required> {{ t('order.confirm_send') }}</label>
+      </div>
+      <button class="btn">{{ icon('message') }}{{ t('order.notify') }}</button>
+    </form>
+    {% endif %}
+    {% if can_fiscal %}
+    <form method="post" action="/orders/{{ o.id }}/fiscal" class="stack mt-sm">
+      {{ csrf(ctx) }}
+      <label class="check"><input type="checkbox" name="confirm" value="yes" required {{ 'disabled' if o.fiscal_no }}> {{ t('order.confirm_fiscal') }}</label>
+      <button class="btn" {{ 'disabled' if o.fiscal_no }}>{{ icon('billing') }}{{ t('order.fiscal') }}</button>
+    </form>
+    {% endif %}
+    {% if not can_notify and not can_fiscal %}<p class="muted small">{{ t('order.no_actions') }}</p>{% endif %}
+    {% if outbox %}
+    <h3 class="h-xs mt">{{ t('order.outbox') }}</h3>
+    <ul class="outbox">
+      {% for m in outbox %}
+      <li><span class="simchip">{{ m.status }}</span> <b>{{ t('channel.' ~ m.channel) }}</b> → {{ m.to or '—' }}<p class="faint">{{ m.text }}</p></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

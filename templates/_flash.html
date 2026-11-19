@@ -1,0 +1,7 @@
+{% set flash = request.query_params.get('msg', '') %}
+{% if flash and has_key(flash) and (flash.startswith('msg.') or flash.startswith('err.')) %}
+<div class="banner {{ 'ok' if flash.startswith('msg.') else 'crit' }}" role="status">{{ t(flash) }}</div>
+{% endif %}
+{% if error and has_key(error) %}
+<div class="banner crit" role="alert">{{ t(error) }}</div>
+{% endif %}

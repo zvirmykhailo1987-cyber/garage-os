@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf %}
+{% block title %}{{ t('nav.assistant') }}{% endblock %}
+{% block body %}
+<div class="page-h"><div><h1>{{ t('bot.title') }}</h1><p>{{ t('bot.sub') }}</p></div></div>
+<div class="grid two">
+  <section class="card pad chat-card">
+    <h2 class="block-h">{{ t('bot.customer') }}<span class="line"></span></h2>
+    <div class="chat" aria-live="polite">
+      <div class="msg bot">{{ t('bot.hello') }}</div>
+      {% if client_reply %}
+        <div class="msg me">{{ last_number }}</div>
+        <div class="msg bot">{% if client_reply.key == 'bot.status' %}{{ t('bot.status', number=client_reply.number, car=client_reply.car, status=t('status.' ~ client_reply.status), total=client_reply.total) }}{% elif client_reply.key == 'bot.no_approval' %}{{ t('bot.no_approval', number=client_reply.number, status=t('status.' ~ client_reply.status)) }}{% else %}{{ t(client_reply.key, number=client_reply.number) }}{% endif %}</div>
+      {% endif %}
+    </div>
+    <form method="post" action="/assistant/status" class="inline">
+      {{ csrf(ctx) }}
+      <div class="field grow"><label for="num">{{ t('bot.number') }}</label><input id="num" name="number" maxlength="20" value="{{ last_number or '' }}" placeholder="KYI-001005" autocapitalize="characters"></div>
+      <button class="btn">{{ t('bot.check') }}</button>
+      <button class="btn pri" formaction="/assistant/approve">{{ t('bot.approve') }}</button>
+    </form>
+    <p class="faint small">{{ t('bot.customer_hint') }}</p>
+  </section>
+  <section class="card pad chat-card">
+    <h2 class="block-h">{{ t('bot.mechanic') }}<span class="line"></span></h2>
+    {% if ctx.can('ai.use') %}
+    <form method="post" action="/assistant/voice" class="stack">
+      {{ csrf(ctx) }}
+      <div class="field"><label for="voice">{{ t('bot.voice') }}</label>
+        <textarea id="voice" name="text" rows="4" maxlength="2000" placeholder="{{ t('intake.ai_ph') }}">{{ last_voice or '' }}</textarea></div>
+      <button class="btn">{{ icon('ai') }}{{ t('intake.ai_btn') }}</button>
+    </form>
+    {% if master_draft %}
+    {% set d = master_draft.draft %}
+    <div class="ai-out mt-sm">
+      <p class="small"><b>{{ t('intake.ai_vehicle') }}:</b> {{ d.vehicle.make_model or '—' }} <span class="plate">{{ d.vehicle.plate or '—' }}</span>
+        · {{ t('ai.confidence', pct=(master_draft.confidence * 100) | round | int) }} · {{ t('ai.local') if master_draft.fallback else t('ai.llm') }}</p>
+      <h3 class="h-xs">{{ t('intake.ai_works') }}</h3>
+      <ul>{% for w in d.works %}<li>{{ w.service }}{% if w.norm_hours %} · {{ '%g'|format(w.norm_hours) }} h{% endif %}</li>{% else %}<li class="faint">—</li>{% endfor %}</ul>
+      <h3 class="h-xs">{{ t('intake.ai_check') }}</h3>
+      <ul>{% for n in d.needs_clarification %}<li>{{ n }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    <p class="hitl">{{ t('ai.hitl') }}</p>
+    {% else %}
+    <p class="muted">{{ t('bot.ai_off') }} <a href="/billing">{{ t('plan.see') }}</a></p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

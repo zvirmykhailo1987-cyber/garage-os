@@ -1,0 +1,21 @@
+{% from "_macros.html" import icon %}
+<div class="foot">
+  <div class="foot-row">
+    <div class="avatar" aria-hidden="true">{{ (ctx.name or ctx.email or '?')[:1] | upper }}</div>
+    <div class="who-mini"><b>{{ ctx.name }}</b><small>{{ ctx.email }}</small></div>
+  </div>
+  <div class="foot-row tools">
+    <button type="button" class="icon-btn" id="theme-toggle" aria-label="{{ t('theme.toggle') }}" title="{{ t('theme.toggle') }}">
+      {{ icon('sun', 'sun') }}{{ icon('moon', 'moon') }}
+    </button>
+    <nav class="lang" aria-label="{{ t('lang.label') }}">
+      {% for code, label in locales.items() %}
+        <a href="/lang/{{ code }}?next={{ next_q }}" class="{{ 'on' if code == lang }}" hreflang="{{ code }}" lang="{{ code }}">{{ code | upper }}</a>
+      {% endfor %}
+    </nav>
+    <form method="post" action="/logout" class="logout">
+      <input type="hidden" name="csrf_token" value="{{ ctx.csrf_token }}">
+      <button class="icon-btn" aria-label="{{ t('nav.logout') }}" title="{{ t('nav.logout') }}">{{ icon('logout') }}</button>
+    </form>
+  </div>
+</div>

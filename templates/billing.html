@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, money %}
+{% block title %}{{ t('nav.billing') }}{% endblock %}
+{% block body %}
+<div class="page-h"><div><h1>{{ t('bill.title') }}</h1><p>{{ ctx.org.name }} · {{ t('bill.status.' ~ ctx.org.status) }}</p></div></div>
+<div class="grid kpis three">
+  <div class="card kpi"><span class="lbl">{{ icon('pin') }}{{ t('settings.branches') }}</span><span class="val tnum">{{ usage.branches }}<small>/ {{ ctx.plan.max_branches if ctx.plan else '—' }}</small></span></div>
+  <div class="card kpi"><span class="lbl">{{ icon('clients') }}{{ t('settings.team') }}</span><span class="val tnum">{{ usage.users }}<small>/ {{ ctx.plan.max_users if ctx.plan else '—' }}</small></span></div>
+  <div class="card kpi"><span class="lbl">{{ icon('orders') }}{{ t('nav.orders') }}</span><span class="val tnum">{{ usage.orders }}</span></div>
+</div>
+<div class="plans mt">
+  {% for p in plans %}
+  <section class="card pad plan{{ ' current' if ctx.plan and p.code == ctx.plan.code }}">
+    <h2>{{ p.title }}</h2>
+    <p class="price">{% if p.price_month %}{{ money(p.price_month) }}<small> / {{ t('bill.month') }}</small>{% else %}{{ t('bill.free') }}{% endif %}</p>
+    <ul class="ticks">
+      <li>{{ t('bill.branches', n=p.max_branches) }}</li>
+      <li>{{ t('bill.users', n=p.max_users) }}</li>
+      <li class="{{ '' if p.ai_enabled else 'off' }}">{{ t('bill.ai_on') if p.ai_enabled else t('bill.ai_off') }}</li>
+    </ul>
+    {% if ctx.plan and p.code == ctx.plan.code %}<span class="tag">{{ t('bill.current') }}</span>{% endif %}
+  </section>
+  {% endfor %}
+</div>
+<p class="faint small mt">{{ t('bill.note') }}</p>
+{% endblock %}

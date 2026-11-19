@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="{{ lang }}" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}{{ t('app.name') }}{% endblock %} · {{ t('app.name') }}</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/static/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/app.css?v={{ STATIC_VERSION }}">
+  <script src="/static/theme.js?v={{ STATIC_VERSION }}"></script>
+  <script src="/static/app.js?v={{ STATIC_VERSION }}" defer></script>
+</head>
+<body{% if ctx %} data-csrf="{{ ctx.csrf_token }}"{% endif %}>
+{% include "_icons.svg" %}
+{% from "_macros.html" import icon %}
+<a class="skip" href="#main">{{ t('a11y.skip') }}</a>
+{% if ctx and ctx.org_id %}
+<div class="app">
+  <aside class="side" aria-label="{{ t('nav.label') }}">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">S</div>
+      <div class="brand-txt"><b>{{ t('app.name') }}</b><small>{{ ctx.org.name if ctx.org }}</small></div>
+      <details class="mnav-toggle">
+        <summary aria-label="{{ t('nav.menu') }}">{{ icon('menu') }}</summary>
+      </details>
+    </div>
+    <nav class="nav" id="nav">
+      <div class="grp">{{ t('nav.work') }}</div>
+      <a href="/" class="{{ 'on' if path == '/' }}">{{ icon('dash') }}<span>{{ t('nav.dashboard') }}</span></a>
+      <a href="/orders" class="{{ 'on' if path.startswith('/orders') and path != '/orders/new' }}">{{ icon('orders') }}<span>{{ t('nav.orders') }}</span>{% if open_orders %}<span class="badge">{{ open_orders }}</span>{% endif %}</a>
+      <a href="/kanban" class="{{ 'on' if path == '/kanban' }}">{{ icon('kanban') }}<span>{{ t('nav.board') }}</span></a>
+      {% if ctx.can('orders.create') %}<a href="/orders/new" class="{{ 'on' if path == '/orders/new' }}">{{ icon('plus') }}<span>{{ t('nav.intake') }}</span></a>{% endif %}
+      <div class="grp">{{ t('nav.records') }}</div>
+      {% if ctx.can('clients.view') %}<a href="/clients" class="{{ 'on' if path.startswith('/clients') }}">{{ icon('clients') }}<span>{{ t('nav.clients') }}</span></a>{% endif %}
+      <a href="/parts" class="{{ 'on' if path.startswith('/parts') }}">{{ icon('parts') }}<span>{{ t('nav.stock') }}</span></a>
+      {% if ctx.can('fleet.view') %}<a href="/fleet" class="{{ 'on' if path.startswith('/fleet') }}">{{ icon('fleet') }}<span>{{ t('nav.fleet') }}</span></a>{% endif %}
+      <div class="grp">{{ t('nav.ai') }}</div>
+      <a href="/assistant" class="{{ 'on' if path.startswith('/assistant') }}">{{ icon('ai') }}<span>{{ t('nav.assistant') }}</span></a>
+      <div class="grp">{{ t('nav.admin') }}</div>
+      <a href="/settings" class="{{ 'on' if path.startswith('/settings') }}">{{ icon('settings') }}<span>{{ t('nav.settings') }}</span></a>
+      {% if ctx.can('migration.run') %}<a href="/migration" class="{{ 'on' if path.startswith('/migration') }}">{{ icon('migration') }}<span>{{ t('nav.migration') }}</span></a>{% endif %}
+      {% if ctx.can('billing.view') or not ctx.writable %}<a href="/billing" class="{{ 'on' if path.startswith('/billing') }}">{{ icon('billing') }}<span>{{ t('nav.billing') }}</span></a>{% endif %}
+    </nav>
+    {% include "_userbar.html" %}
+  </aside>
+
+  <main class="main" id="main">
+    <div class="branchbar">
+      <form method="post" action="/branch" class="bb-form">
+        <input type="hidden" name="csrf_token" value="{{ ctx.csrf_token }}">
+        <input type="hidden" name="next" value="{{ path }}">
+        <label class="bb-label" for="branch-select">{{ icon('pin') }}<span>{{ t('branch.label') }}</span></label>
+        <select id="branch-select" name="branch_id" data-autosubmit>
+          {% if ctx.is_net_admin %}<option value="" {{ 'selected' if not active_branch }}>{{ t('branch.all') }}</option>{% endif %}
+          {% for b in branches or [] %}
+            <option value="{{ b.id }}" {{ 'selected' if active_branch and active_branch.id == b.id }}>{{ b.name }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn sm js-hide">{{ t('btn.apply') }}</button>
+      </form>
+      <div class="who">
+        <span class="role">{% if ctx.is_net_admin %}{{ t('role.net_admin') }}{% elif active_branch %}{{ t('role.' ~ ctx.role_in(active_branch.id)) }}{% endif %}</span>
+      </div>
+    </div>
+    <div class="wrap">
+      {% if not ctx.writable %}
+      <div class="banner warn" role="status">{{ icon('alert') }}<span>{{ t('plan.readonly') }} <a href="/billing">{{ t('plan.see') }}</a></span></div>
+      {% endif %}
+      {% include "_flash.html" %}
+      {% block body %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% else %}
+<main class="solo" id="main">
+  {% block solo %}{% endblock %}
+</main>
+{% endif %}
+</body>
+</html>

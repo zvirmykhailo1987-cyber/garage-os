@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, pill, money, pager, empty %}
+{% block title %}{{ t('nav.orders') }}{% endblock %}
+{% block body %}
+<div class="page-h">
+  <div><h1>{{ t('orders.title') }}</h1><p>{{ active_branch.name if active_branch else t('branch.all') }}</p></div>
+  {% if ctx.can('orders.create') %}<div class="actions"><a class="btn pri" href="/orders/new">{{ icon('plus') }}{{ t('nav.intake') }}</a></div>{% endif %}
+</div>
+
+<div class="card pad toolbar">
+  <form method="get" action="/orders" class="inline grow">
+    <div class="field grow"><label for="q">{{ t('orders.search') }}</label>
+      <input id="q" name="q" value="{{ q }}" placeholder="{{ t('orders.search_ph') }}"></div>
+    <div class="field"><label for="status">{{ t('col.status') }}</label>
+      <select id="status" name="status"><option value="">{{ t('orders.any_status') }}</option>
+        {% for st in STATUSES %}<option value="{{ st }}" {{ 'selected' if f_status == st }}>{{ t('status.' ~ st) }}</option>{% endfor %}
+      </select></div>
+    <button class="btn">{{ icon('search') }}{{ t('btn.filter') }}</button>
+  </form>
+  {% if ctx.can('ai.use') %}
+  <form method="get" action="/orders/search" class="inline grow ai-search">
+    <div class="field grow"><label for="aiq">{{ t('orders.ai_search') }}</label>
+      <input id="aiq" name="q" value="{{ ai_q or '' }}" placeholder="{{ t('orders.ai_ph') }}"></div>
+    <button class="btn">{{ icon('ai') }}{{ t('btn.ask') }}</button>
+  </form>
+  {% endif %}
+</div>
+
+{% if ai_filters is defined %}
+<div class="banner info" role="status">{{ icon('ai') }}
+  <span><b>{{ t('ai.understood') }}</b> {{ ai_summary }}
+  {% for f in ai_filters %}<span class="chip">{{ f.field }} {{ f.op }} {{ f.value }}</span>{% endfor %}
+  <span class="faint">· {{ t('ai.local') if ai_fallback else t('ai.llm') }}</span></span></div>
+{% endif %}
+
+<section class="card mt">
+  {% if rows %}
+  <div class="tw"><table>
+    <thead><tr><th>{{ t('col.number') }}</th>{% if not active_branch %}<th>{{ t('col.branch') }}</th>{% endif %}<th>{{ t('col.vehicle') }}</th><th>{{ t('col.client') }}</th><th>{{ t('col.status') }}</th><th>{{ t('col.accepted') }}</th><th class="num">{{ t('col.total') }}</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr><td><a class="strong" href="/orders/{{ r.o.id }}">{{ r.o.number }}</a></td>
+        {% if not active_branch %}<td class="muted">{{ r.branch.name if r.branch else '—' }}</td>{% endif %}
+        <td>{% if r.car %}{{ r.car.make }} {{ r.car.model }} <span class="plate">{{ r.car.plate }}</span>{% else %}—{% endif %}</td>
+        <td><span class="trunc">{{ r.client.name if r.client else '—' }}</span></td>
+        <td>{{ pill(t, r.o.status) }}</td>
+        <td class="muted tnum">{{ r.o.accepted_at.strftime('%d.%m.%Y') if r.o.accepted_at else '—' }}</td>
+        <td class="num">{{ money(r.o.total) }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}{{ empty(t('orders.none_found'), 'search') }}{% endif %}
+</section>
+{{ pager(t, page, has_next, ('&q=' ~ (q|urlencode) ~ '&status=' ~ f_status) if ai_filters is not defined else ('&q=' ~ (ai_q|urlencode))) }}
+{% endblock %}

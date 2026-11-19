@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block solo %}
+<div class="auth">
+  <div class="auth-top">
+    <a class="brand-link" href="/login"><span class="logo" aria-hidden="true">S</span><b>{{ t('app.name') }}</b></a>
+    <div class="auth-tools">
+      <button type="button" class="icon-btn" id="theme-toggle" aria-label="{{ t('theme.toggle') }}">{{ icon('sun', 'sun') }}{{ icon('moon', 'moon') }}</button>
+      <nav class="lang" aria-label="{{ t('lang.label') }}">
+        {% for code, label in locales.items() %}<a href="/lang/{{ code }}?next={{ next_q }}" class="{{ 'on' if code == lang }}" lang="{{ code }}">{{ code | upper }}</a>{% endfor %}
+      </nav>
+    </div>
+  </div>
+  {% block auth %}{% endblock %}
+</div>
+{% endblock %}

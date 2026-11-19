@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, pager, empty, csrf %}
+{% block title %}{{ t('nav.clients') }}{% endblock %}
+{% block body %}
+<div class="page-h"><div><h1>{{ t('clients.title') }}</h1><p>{{ active_branch.name if active_branch else t('branch.all') }}</p></div></div>
+<div class="grid two">
+  <section class="card">
+    <form method="get" action="/clients" class="pad inline">
+      <div class="field grow"><label for="q">{{ t('clients.search') }}</label><input id="q" name="q" value="{{ q }}" placeholder="{{ t('clients.search_ph') }}"></div>
+      <button class="btn">{{ icon('search') }}{{ t('btn.filter') }}</button>
+    </form>
+    {% if rows %}
+    <div class="tw"><table>
+      <thead><tr><th>{{ t('field.name') }}</th><th>{{ t('field.phone') }}</th><th>{{ t('clients.vehicles') }}</th><th class="num">{{ t('clients.visits') }}</th></tr></thead>
+      <tbody>{% for r in rows %}
+        <tr><td><a class="strong" href="/clients/{{ r.c.id }}">{{ r.c.name }}</a> {% if r.c.kind != 'private' %}<span class="tag">{{ t('kind.' ~ r.c.kind) }}</span>{% endif %}</td>
+          <td class="mono">{{ r.c.phone or '—' }}</td>
+          <td>{% for car in r.cars[:2] %}<span class="plate">{{ car.plate }}</span> {% endfor %}{% if r.cars|length > 2 %}<span class="faint">+{{ r.cars|length - 2 }}</span>{% endif %}</td>
+          <td class="num">{{ r.visits }}</td></tr>
+      {% endfor %}</tbody>
+    </table></div>
+    {% else %}{{ empty(t('clients.empty'), 'clients') }}{% endif %}
+  </section>
+  {% if can_edit %}
+  <section class="card pad">
+    <h2 class="block-h">{{ t('clients.new') }}<span class="line"></span></h2>
+    {% if needs_branch %}<p class="muted small">{{ t('err.pick_branch') }}</p>{% else %}
+    <form method="post" action="/clients/new" class="stack">
+      {{ csrf(ctx) }}
+      <div class="field"><label for="c-name">{{ t('field.name') }}</label><input id="c-name" name="name" required maxlength="160"></div>
+      <div class="field"><label for="c-phone">{{ t('field.phone') }}</label><input id="c-phone" name="phone" type="tel" maxlength="40"></div>
+      <div class="frow c2">
+        <div class="field"><label for="c-kind">{{ t('clients.kind') }}</label><select id="c-kind" name="kind">{% for k in kinds %}<option value="{{ k }}">{{ t('kind.' ~ k) }}</option>{% endfor %}</select></div>
+        <div class="field"><label for="c-disc">{{ t('field.discount') }}</label><input id="c-disc" name="discount" value="0" inputmode="decimal"></div>
+      </div>
+      <button class="btn pri">{{ icon('plus') }}{{ t('btn.add') }}</button>
+    </form>{% endif %}
+  </section>
+  {% endif %}
+</div>
+{{ pager(t, page, has_next, '&q=' ~ (q|urlencode)) }}
+{% endblock %}

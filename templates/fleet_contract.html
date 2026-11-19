@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, pill, money, empty, csrf %}
+{% block title %}{{ c.name }}{% endblock %}
+{% block body %}
+<div class="page-h">
+  <div><h1>{{ c.name }}</h1><p>{{ client.name if client else '—' }} · {{ t('fleet.days', n=c.credit_terms_days) }} · {{ t('fleet.vehicles') }}: {{ ov.count }}</p></div>
+  <div class="actions"><a class="btn ghost" href="/fleet">{{ t('order.back') }}</a></div>
+</div>
+<div class="grid kpis three">
+  <div class="card kpi"><span class="lbl">{{ icon('fleet') }}{{ t('fleet.vehicles') }}</span><span class="val tnum">{{ ov.count }}</span></div>
+  <div class="card kpi accent"><span class="lbl">{{ icon('billing') }}{{ t('fleet.spend') }}</span><span class="val">{{ money(ov.total) }}</span></div>
+  <div class="card kpi"><span class="lbl">{{ icon('alert') }}{{ t('fleet.due') }}</span><span class="val tnum">{{ ov.vehicles | selectattr('due') | selectattr('due.overdue') | list | length }}</span></div>
+</div>
+<section class="card mt">
+  <div class="sec-h"><h2>{{ t('fleet.vehicles') }}</h2></div>
+  <div class="tw"><table>
+    <thead><tr><th>{{ t('fleet.unit') }}</th><th>{{ t('col.vehicle') }}</th><th class="num">{{ t('field.mileage') }}</th><th>{{ t('fleet.maintenance') }}</th><th class="num">{{ t('fleet.orders') }}</th><th class="num">{{ t('fleet.spend') }}</th></tr></thead>
+    <tbody>{% for r in ov.vehicles %}
+      <tr><td class="mono strong">{{ r.v.unit_no }}</td>
+        <td>{{ r.label }} {% if r.car %}<span class="plate">{{ r.car.plate }}</span>{% endif %}</td>
+        <td class="num">{{ '{:,}'.format(r.car.mileage).replace(',', ' ') if r.car and r.car.mileage is not none else '—' }}</td>
+        <td>{% if r.due %}{% if r.due.overdue %}<span class="pill st-waiting_parts">{{ t('fleet.overdue', km='{:,}'.format(-r.due.remaining).replace(',', ' ')) }}</span>{% elif r.due.soon %}<span class="pill st-in_progress">{{ t('fleet.soon', km='{:,}'.format(r.due.remaining).replace(',', ' ')) }}</span>{% else %}<span class="faint">{{ t('fleet.in_km', km='{:,}'.format(r.due.remaining).replace(',', ' ')) }}</span>{% endif %}{% else %}<span class="faint">—</span>{% endif %}</td>
+        <td class="num">{{ r.orders|length }}</td><td class="num">{{ money(r.total) }}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+</section>
+<section class="card mt">
+  <div class="sec-h"><h2>{{ t('fleet.acts') }}</h2></div>
+  {% if acts %}
+  <div class="tw"><table>
+    <thead><tr><th>{{ t('fleet.period') }}</th><th class="num">{{ t('fleet.orders') }}</th><th class="num">{{ t('col.total') }}</th><th>{{ t('fleet.created') }}</th></tr></thead>
+    <tbody>{% for a in acts %}<tr><td class="mono">{{ a.period }}</td><td class="num">{{ a.orders }}</td><td class="num">{{ money(a.total) }}</td><td class="muted">{{ a.created_at.strftime('%d.%m.%Y %H:%M') }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<p class="pad faint">{{ t('fleet.no_acts') }}</p>{% endif %}
+  {% if can_acts %}
+  <form method="post" action="/fleet/{{ c.id }}/act" class="pad inline">
+    {{ csrf(ctx) }}
+    <div class="field"><label for="period">{{ t('fleet.period') }}</label><input id="period" name="period" type="month" value="{{ default_period }}" required></div>
+    <button class="btn pri">{{ icon('print') }}{{ t('fleet.make_act') }}</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

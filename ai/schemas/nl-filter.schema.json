@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NLFilter",
+  "description": "Natural-language search compiled into visible, editable filters over work orders (Tier 0).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["filters", "summary"],
+  "properties": {
+    "filters": {
+      "type": "array", "maxItems": 6,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["field", "op", "value"],
+        "properties": {
+          "field": {"type": "string", "enum": ["status", "make", "engine", "updated"]},
+          "op": {"type": "string", "enum": ["=", "contains", ">="]},
+          "value": {"type": "string", "maxLength": 60}
+        }
+      }
+    },
+    "summary": {"type": "string", "maxLength": 300}
+  }
+}
