@@ -38,6 +38,7 @@ exclude = ["^tests/", "^scripts/"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.coverage.run]
