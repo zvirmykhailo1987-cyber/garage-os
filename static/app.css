@@ -1,4 +1,4 @@
-/* STO Network design system: primitives → semantic tokens → components.
+/* GarageOS design system: primitives → semantic tokens → components.
    One accent (indigo), neutral slate, light + dark. No inline styles anywhere (CSP). */
 
 @font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;

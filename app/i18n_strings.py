@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 EN: dict[str, str] = {
-    "app.name": "STO Network",
+    "app.name": "GarageOS",
     "a11y.skip": "Skip to content",
     # navigation
     "nav.label": "Main navigation", "nav.menu": "Menu", "nav.work": "Workshop", "nav.records": "Records",
@@ -193,7 +193,7 @@ EN: dict[str, str] = {
 }
 
 UK: dict[str, str] = {
-    "app.name": "СТО-мережа",
+    "app.name": "GarageOS",
     "a11y.skip": "Перейти до змісту",
     "nav.label": "Головна навігація", "nav.menu": "Меню", "nav.work": "Робота", "nav.records": "Облік",
     "nav.ai": "AI та канали", "nav.admin": "Керування", "nav.dashboard": "Огляд",

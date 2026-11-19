@@ -19,7 +19,7 @@
 <div class="app">
   <aside class="side" aria-label="{{ t('nav.label') }}">
     <div class="brand">
-      <div class="logo" aria-hidden="true">S</div>
+      <div class="logo" aria-hidden="true">G</div>
       <div class="brand-txt"><b>{{ t('app.name') }}</b><small>{{ ctx.org.name if ctx.org }}</small></div>
       <details class="mnav-toggle">
         <summary aria-label="{{ t('nav.menu') }}">{{ icon('menu') }}</summary>
@@ -69,14 +69,14 @@
       {% endif %}
       {% include "_flash.html" %}
       {% block body %}{% endblock %}
-      <p class="avtorstvo">© 2026 Mykhailo Zvir · <a href="https://github.com/zvirmykhailo1987-cyber/sto/blob/main/LICENSE" rel="license">MIT License</a></p>
+      <p class="avtorstvo">© 2026 Mykhailo Zvir · <a href="https://github.com/zvirmykhailo1987-cyber/garage-os/blob/main/LICENSE" rel="license">MIT License</a></p>
     </div>
   </main>
 </div>
 {% else %}
 <main class="solo" id="main">
   {% block solo %}{% endblock %}
-  <p class="avtorstvo">© 2026 Mykhailo Zvir · <a href="https://github.com/zvirmykhailo1987-cyber/sto/blob/main/LICENSE" rel="license">MIT License</a></p>
+  <p class="avtorstvo">© 2026 Mykhailo Zvir · <a href="https://github.com/zvirmykhailo1987-cyber/garage-os/blob/main/LICENSE" rel="license">MIT License</a></p>
 </main>
 {% endif %}
 </body>

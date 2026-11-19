@@ -87,7 +87,7 @@ EDGE_TAG = (__import__("hashlib").sha256(SYNC_DEVICE_TOKEN.encode()).hexdigest()
 if IS_PROD and HUB_URL and not SYNC_DEVICE_TOKEN:
     raise ConfigError("SYNC_DEVICE_TOKEN is required when HUB_URL is set in production")
 
-APP_TITLE = "STO Network"
+APP_TITLE = "GarageOS"
 
 
 def ensure_dirs() -> None:

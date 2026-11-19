@@ -88,7 +88,7 @@ def slow_type(page: Page, sel: str, text: str) -> None:
 
 def story(page: Page) -> None:
     page.goto(BASE + "/login")
-    caption(page, "STO Network — multi-tenant workshop management. All data here is synthetic.", 2.8)
+    caption(page, "GarageOS — multi-tenant workshop management. All data here is synthetic.", 2.8)
     page.fill("#email", "owner@northwind.test")
     page.fill("#password", PASSWORD)
     caption(page, "Sign in as the owner of a 3-branch network", 1.4)

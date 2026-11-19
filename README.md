@@ -1,4 +1,4 @@
-# STO Network
+# GarageOS
 
 Multi-tenant workshop management for networks of auto service stations — work orders,
 a kanban board, customers, stock, fleet contracts, a Telegram channel and offline-first
@@ -15,12 +15,12 @@ form, a strict CSP, role and plan checks on the route, and a test for every boun
 **Demo video (2 min, captioned):** [`docs/demo.webm`](docs/demo.webm) — recorded by
 [`scripts/record_demo.py`](scripts/record_demo.py) from a fresh database, so it can be re-made after any change.
 
-`139 tests` · `93 % coverage (gate 90 %)` · `ruff` · `mypy` · `bandit` · `pip-audit` · MIT
+`141 tests (136 on SQLite + 5 Postgres-only RLS tests)` · `93 % coverage (gate 90 %)` · `ruff` · `mypy` · `bandit` · `pip-audit` · MIT
 
 ## Quick start
 
 ```bash
-git clone <this repo> sto-network && cd sto-network
+git clone https://github.com/zvirmykhailo1987-cyber/garage-os.git && cd garage-os
 docker compose up            # → http://localhost:8000
 ```
 
@@ -128,7 +128,7 @@ ai/             LLM client, schema-validated runner, offline extractors, JSON sc
 integrations/   plate registry, telephony, messaging, fiscal — free stubs + documented seams
 tg_bot/         Telegram bot (aiogram, async httpx → REST API)
 templates/ static/   server-rendered UI, design tokens, light/dark, EN/UK
-tests/          139 tests; Postgres-only RLS tests run when STO_TEST_DATABASE_URL is set
+tests/          141 tests; the 5 Postgres-only RLS tests run when STO_TEST_DATABASE_URL is set
 deploy/initdb/  creates the restricted database role on first start
 ```
 
