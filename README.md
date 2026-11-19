@@ -6,6 +6,8 @@ sync — built as a deliberately small but complete SaaS: tenant isolation enfor
 (application layer **and** Postgres row-level security), server-side sessions, CSRF on every
 form, a strict CSP, role and plan checks on the route, and a test for every boundary.
 
+**Live demo:** https://garage-os-demo.159.195.219.73.sslip.io — synthetic data that resets every night at 04:00 CET; demo logins are listed on the sign-in page.
+
 ![Dashboard, light theme](docs/screenshot-dashboard-light.png)
 
 | Board (dark) | Work orders | Phone (dark) |
