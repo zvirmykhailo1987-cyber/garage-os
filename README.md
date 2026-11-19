@@ -15,7 +15,7 @@ form, a strict CSP, role and plan checks on the route, and a test for every boun
 **Demo video (2 min, captioned):** [`docs/demo.webm`](docs/demo.webm) — recorded by
 [`scripts/record_demo.py`](scripts/record_demo.py) from a fresh database, so it can be re-made after any change.
 
-`141 tests (136 on SQLite + 5 Postgres-only RLS tests)` · `93 % coverage (gate 90 %)` · `ruff` · `mypy` · `bandit` · `pip-audit` · MIT
+`165 tests (159 on SQLite + 6 Postgres-only RLS tests)` · `92.7 % line + branch coverage (gate 92 %)` · `33 of 33 injected bugs caught` · `ruff` · `mypy` · `bandit` · `pip-audit` · MIT
 
 ## Quick start
 
@@ -96,7 +96,29 @@ SQLModel ─── SQLite (dev)  │  Postgres: SET LOCAL app.current_org per tr
 ## Quality gates (CI)
 
 `ruff` · `mypy` · `bandit` · `pip-audit` · `pytest` on **SQLite and on Postgres with RLS**
-· coverage gate 90 % · `docker compose` smoke test that signs in with a demo account.
+· line + branch coverage gate 92 % · `docker compose` smoke test that signs in with a demo account.
+
+**Coverage** (branch coverage on): SQLite 94.8 % of lines and 85.2 % of branches (92.7 % combined);
+Postgres 95.6 % / 86.5 % (93.7 %). The gate is the lower combined figure, rounded down.
+There are no `# pragma: no cover` comments. The one exclusion rule in `pyproject.toml` skips the
+18 `raise RuntimeError("invariant: …")` lines (`grep -rn '"invariant:' app` lists them: `app/web/views.py` 5,
+`app/demo.py` 4, `app/web/orders.py` 3, `app/web/auth.py` 2, and one each in `app/api/deps.py`,
+`app/security.py`, `app/services/orders.py`, `app/web/admin.py`). Reason: each one narrows an `Optional`
+for mypy right after a flush or commit has set the value, so it cannot run.
+
+**Mutation check:** 33 of 33 injected bugs caught. [`scripts/mutation_check.py`](scripts/mutation_check.py)
+removes one guarantee at a time from a temporary copy (shared-row tenant filter, lookup by id or number
+across tenants, the RLS tenant setting, RLS on branches and memberships, the startup check of the database
+role, VAT maths, hub-computed totals, prices in an LLM draft, the pricing and fiscal roles, frozen fiscal
+orders, optimistic versions on the form, the board and sync, conflict records, device and API token
+revocation, scope and tenant, the bot's chat binding, read-only suspended plans, line IDOR, lockout,
+session revocation and idle expiry, CSRF before and after login). It runs the whole suite on SQLite
+and on Postgres with RLS for each one. Results: [`docs/mutation-results.json`](docs/mutation-results.json).
+The first run caught 30 of 33. The three survivors were real gaps, and tests now cover them (the org check
+on another tenant's shared rows, the RLS role guard refusing the owner role, and an LLM draft that carries
+a price). Run it with `python scripts/mutation_check.py`. It starts and removes a throwaway
+`postgres:17-alpine` container, or uses `STO_TEST_DATABASE_URL` / `_ADMIN_URL` if you set them.
+It takes about an hour.
 
 ## Performance
 
@@ -128,7 +150,7 @@ ai/             LLM client, schema-validated runner, offline extractors, JSON sc
 integrations/   plate registry, telephony, messaging, fiscal — free stubs + documented seams
 tg_bot/         Telegram bot (aiogram, async httpx → REST API)
 templates/ static/   server-rendered UI, design tokens, light/dark, EN/UK
-tests/          141 tests; the 5 Postgres-only RLS tests run when STO_TEST_DATABASE_URL is set
+tests/          165 tests; the 6 Postgres-only RLS tests run when STO_TEST_DATABASE_URL is set
 deploy/initdb/  creates the restricted database role on first start
 ```
 

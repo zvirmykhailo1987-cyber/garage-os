@@ -1,0 +1,209 @@
+{
+  "measured": "2026-11-19",
+  "backends": [
+    "sqlite",
+    "postgres-17-rls"
+  ],
+  "bugs_injected": 33,
+  "caught": 33,
+  "results": [
+    {
+      "bug": "Organization-wide rows of every tenant are visible (shared-row filter drops org_id)",
+      "file": "app/tenancy.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_isolation.py::test_null_branch_rows_do_not_leak_across_orgs"
+    },
+    {
+      "bug": "A lookup by id returns any tenant's row",
+      "file": "app/tenancy.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_isolation.py::test_branch_user_cannot_reach_sibling_branch"
+    },
+    {
+      "bug": "can_access no longer compares the row's organization",
+      "file": "app/tenancy.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_boundaries.py::test_shared_rows_are_visible_only_when_asked_for_and_only_in_own_org"
+    },
+    {
+      "bug": "Order lookup by number ignores the tenant",
+      "file": "app/tenancy.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_api.py::test_cross_tenant_order_is_404"
+    },
+    {
+      "bug": "The RLS tenant setting is never sent to Postgres",
+      "file": "app/db.py",
+      "caught": true,
+      "caught_by": "postgres: tests/test_api.py::test_bot_token_only_sees_orders_of_linked_chat"
+    },
+    {
+      "bug": "REST requests run without binding the tenant",
+      "file": "app/api/deps.py",
+      "caught": true,
+      "caught_by": "postgres: tests/test_api.py::test_scope_enforced"
+    },
+    {
+      "bug": "Branches and memberships are left outside RLS",
+      "file": "app/rls.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_rls.py::test_every_model_with_org_id_is_protected"
+    },
+    {
+      "bug": "Startup accepts a database role that bypasses RLS",
+      "file": "app/rls.py",
+      "caught": true,
+      "caught_by": "postgres: tests/test_rls.py::test_runtime_role_check_refuses_a_role_that_can_bypass_rls"
+    },
+    {
+      "bug": "VAT is added on top instead of extracted from the price",
+      "file": "app/models/workorder.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_boundaries.py::test_part_line_delete_checks_the_parent_order_and_recomputes_the_total"
+    },
+    {
+      "bug": "A device push keeps the totals it was sent instead of recomputing them",
+      "file": "app/sync/engine.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_review_regressions.py::test_device_line_push_recomputes_total_and_fiscal_orders_are_frozen"
+    },
+    {
+      "bug": "An LLM draft may carry prices for parts",
+      "file": "ai/schemas/work-order-draft.schema.json",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_boundaries.py::test_llm_answer_with_prices_is_rejected_for_the_offline_extractor"
+    },
+    {
+      "bug": "A mechanic may type a price",
+      "file": "app/permissions.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_review_regressions.py::test_mechanic_cannot_set_prices"
+    },
+    {
+      "bug": "A fiscalised order's lines can still be changed",
+      "file": "app/web/orders.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_review_regressions.py::test_paid_and_fiscalised_orders_are_frozen"
+    },
+    {
+      "bug": "The order form ignores the expected version",
+      "file": "app/web/orders.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_roles_plans.py::test_optimistic_lock_on_form_and_board"
+    },
+    {
+      "bug": "A board drag ignores the expected version",
+      "file": "app/web/orders.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_roles_plans.py::test_optimistic_lock_on_form_and_board"
+    },
+    {
+      "bug": "A stale device push overwrites the hub (last write wins)",
+      "file": "app/sync/engine.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_review_regressions.py::test_conflict_keeps_relations_on_the_edge"
+    },
+    {
+      "bug": "A refused push loses its conflict records",
+      "file": "app/sync/engine.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_sync.py::test_concurrent_edit_returns_409_and_is_recorded_not_overwritten"
+    },
+    {
+      "bug": "A device may change the money of a paid order",
+      "file": "app/sync/engine.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_review_regressions.py::test_device_cannot_move_lines_or_change_money_on_paid_orders"
+    },
+    {
+      "bug": "A revoked sync device keeps syncing",
+      "file": "app/sync/routes.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_sync.py::test_sync_requires_a_valid_device_token"
+    },
+    {
+      "bug": "A device push may overwrite a row of another tenant by uid",
+      "file": "app/sync/engine.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_sync.py::test_push_cannot_write_into_another_tenant"
+    },
+    {
+      "bug": "A parent uid from another tenant resolves",
+      "file": "app/sync/engine.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_sync.py::test_push_cannot_write_into_another_tenant"
+    },
+    {
+      "bug": "An API token works outside its scopes",
+      "file": "app/api/deps.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_api.py::test_scope_enforced"
+    },
+    {
+      "bug": "A revoked or expired API token keeps working",
+      "file": "app/api/deps.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_api.py::test_token_required_and_validated"
+    },
+    {
+      "bug": "A bot token reads orders of clients its chat is not linked to",
+      "file": "app/api/routes.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_api.py::test_bot_token_only_sees_orders_of_linked_chat"
+    },
+    {
+      "bug": "A receptionist may issue fiscal receipts",
+      "file": "app/permissions.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_roles_plans.py::test_receptionist_cannot_fiscalise_or_edit_catalog"
+    },
+    {
+      "bug": "A suspended subscription can still write",
+      "file": "app/tenancy.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_roles_plans.py::test_suspended_subscription_is_read_only"
+    },
+    {
+      "bug": "A line of another order can be deleted through this order's URL (IDOR)",
+      "file": "app/web/orders.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_isolation.py::test_idor_delete_line_of_another_order_in_same_tenant"
+    },
+    {
+      "bug": "A locked account can still sign in",
+      "file": "app/web/auth.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_auth.py::test_account_lockout_after_repeated_failures"
+    },
+    {
+      "bug": "Failed logins are not counted towards the lockout",
+      "file": "app/web/auth.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_auth.py::test_account_lockout_after_repeated_failures"
+    },
+    {
+      "bug": "A logged-out (revoked) session keeps working",
+      "file": "app/security.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_auth.py::test_logout_revokes_server_session"
+    },
+    {
+      "bug": "An idle session never expires",
+      "file": "app/security.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_auth.py::test_expired_and_idle_sessions_are_rejected"
+    },
+    {
+      "bug": "Signed-in forms accept a missing or forged CSRF token",
+      "file": "app/web/deps.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_auth.py::test_logout_requires_csrf"
+    },
+    {
+      "bug": "Login and sign-up accept a missing or forged CSRF token",
+      "file": "app/web/deps.py",
+      "caught": true,
+      "caught_by": "sqlite: tests/test_auth.py::test_signup_creates_isolated_trial_org"
+    }
+  ]
+}
