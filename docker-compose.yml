@@ -1,0 +1,72 @@
+# One command demo:  docker compose up        → http://localhost:8000
+# Postgres with row-level security, a restricted app role, synthetic demo data.
+# Every secret below has a LOCAL-ONLY default; set real values in .env before exposing anything.
+
+x-app-env: &app-env
+  STO_ENV: ${STO_ENV:-demo}
+  STO_SECRET: ${STO_SECRET:-local-demo-secret-change-me-before-exposing-0001}
+  DEMO_MODE: ${DEMO_MODE:-1}
+  COOKIE_SECURE: ${COOKIE_SECURE:-0}
+  STO_LOCALE: ${STO_LOCALE:-en}
+  LLM_PROVIDER: ${LLM_PROVIDER:-stub}
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: sto
+      POSTGRES_USER: sto_owner
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-owner-password}
+      STO_APP_DB_PASSWORD: ${STO_APP_DB_PASSWORD:-local-app-password}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./deploy/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sto_owner -d sto"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # one-shot: schema, RLS policies, grants, plans and (DEMO_MODE=1) synthetic data — as the owner
+  migrate:
+    build: .
+    command: ["python", "-m", "app.manage", "init"]
+    environment:
+      <<: *app-env
+      DATABASE_URL: postgresql+psycopg://sto_app:${STO_APP_DB_PASSWORD:-local-app-password}@db:5432/sto
+      DATABASE_ADMIN_URL: postgresql+psycopg://sto_owner:${POSTGRES_PASSWORD:-local-owner-password}@db:5432/sto
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  # the web process only knows the restricted role — it cannot bypass row-level security
+  web:
+    build: .
+    environment:
+      <<: *app-env
+      DATABASE_URL: postgresql+psycopg://sto_app:${STO_APP_DB_PASSWORD:-local-app-password}@db:5432/sto
+    ports:
+      - "${STO_PORT:-8000}:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # optional Telegram bot:  docker compose --profile bot up
+  bot:
+    build: .
+    profiles: ["bot"]
+    command: ["python", "-m", "tg_bot.bot"]
+    environment:
+      TG_BOT_TOKEN: ${TG_BOT_TOKEN:-}
+      STO_API_TOKEN: ${STO_API_TOKEN:-}
+      STO_API_BASE: http://web:8000
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:

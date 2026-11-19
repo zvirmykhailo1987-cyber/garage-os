@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint, types, security scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: ruff
+        run: ruff check .
+      - name: mypy
+        run: mypy app ai integrations tg_bot
+      - name: bandit
+        run: bandit -q -r app ai integrations tg_bot -x app/i18n_strings.py -c pyproject.toml
+      - name: pip-audit
+        run: pip-audit -r requirements.txt --progress-spinner off
+
+  test-sqlite:
+    name: Tests (SQLite) + coverage gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -q --cov --cov-report=term --cov-report=xml
+
+  test-postgres:
+    name: Tests (Postgres + row-level security)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: sto
+          POSTGRES_USER: sto_owner
+          POSTGRES_PASSWORD: ci-owner
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U sto_owner -d sto" --health-interval 3s --health-retries 20
+    env:
+      STO_TEST_DATABASE_URL: postgresql+psycopg://sto_app:ci-app@localhost:5432/sto
+      STO_TEST_DATABASE_ADMIN_URL: postgresql+psycopg://sto_owner:ci-owner@localhost:5432/sto
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Create the restricted application role
+        run: >-
+          PGPASSWORD=ci-owner psql -h localhost -U sto_owner -d sto -v ON_ERROR_STOP=1 -c
+          "CREATE ROLE sto_app LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD 'ci-app';"
+      - run: pytest -q --cov --cov-report=term
+
+  docker:
+    name: docker compose smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --build --wait web
+      - name: Demo login works end to end
+        run: |
+          set -e
+          curl -fsS http://localhost:8000/healthz
+          jar=$(mktemp)
+          token=$(curl -fsS -c "$jar" http://localhost:8000/login | grep -o 'name="csrf_token" value="[^"]*"' | cut -d'"' -f4)
+          code=$(curl -s -o /dev/null -w '%{http_code}' -b "$jar" -c "$jar" \
+            --data-urlencode "email=owner@northwind.test" --data-urlencode "password=demo-password-2026" \
+            --data-urlencode "csrf_token=$token" http://localhost:8000/login)
+          test "$code" = "303"
+          curl -fsS -b "$jar" http://localhost:8000/orders | grep -qE "(KYI|LVI|ODE)-00"
+      - if: failure()
+        run: docker compose logs
