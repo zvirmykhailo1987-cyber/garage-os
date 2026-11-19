@@ -64,3 +64,11 @@ def test_context_does_not_leak_through_the_pool(world):
 @pg
 def test_runtime_role_cannot_bypass_rls():
     assert_runtime_role_is_restricted(engine)
+
+
+@pg
+def test_runtime_role_check_refuses_a_role_that_can_bypass_rls():
+    """The startup guard itself: the schema owner is exempt from RLS, so it must be refused."""
+    from app.db import admin_engine
+    with pytest.raises(RuntimeError, match="bypass row-level security"):
+        assert_runtime_role_is_restricted(admin_engine)

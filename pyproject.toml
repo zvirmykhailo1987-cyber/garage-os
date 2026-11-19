@@ -45,9 +45,13 @@ filterwarnings = ["ignore::DeprecationWarning"]
 [tool.coverage.run]
 source = ["app", "ai", "integrations"]
 omit = ["app/manage.py"]
+branch = true
 
 [tool.coverage.report]
-fail_under = 90
+fail_under = 92   # line + branch; measured 92.7 % on SQLite, 93.7 % on Postgres (rounded down)
+# The only exclusion: `if x is None: raise RuntimeError("invariant: ...")` guards that narrow an
+# Optional for mypy after a flush/commit has assigned the value. Unreachable by construction; see README.
+exclude_also = ['raise RuntimeError\("invariant: ']
 show_missing = true
 skip_covered = true
 
