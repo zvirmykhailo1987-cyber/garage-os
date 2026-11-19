@@ -5,6 +5,11 @@ Start: `docker compose up` → open <http://localhost:8000>. All data is synthet
 Every demo account uses the password **`demo-password-2026`**; the login page lists them
 and fills the form with one click.
 
+On the public demo the data resets every night at 04:00 CET. The shared demo accounts are protected
+while `DEMO_MODE=1`: they cannot be deactivated, their organizations cannot be suspended from the
+operator console, wrong passwords never lock them (the per-IP rate limit still applies), and their
+e-mails cannot be re-registered. Production (`DEMO_MODE=0`) is unaffected.
+
 | Account | Role | What it shows |
 |---|---|---|
 | `owner@northwind.test` | Network owner, 3 branches | everything inside one tenant |

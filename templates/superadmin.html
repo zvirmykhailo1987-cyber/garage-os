@@ -11,6 +11,7 @@
       <form method="post" action="/logout">{{ csrf(ctx) }}<button class="btn sm">{{ icon('logout') }}{{ t('nav.logout') }}</button></form>
     </div>
   </header>
+  {% if DEMO_MODE %}<div class="banner info" role="note">{{ icon('alert') }}<span>{{ t('demo.banner') }}</span></div>{% endif %}
   <div class="wrap">
     <div class="page-h"><div><h1>{{ t('op.title') }}</h1><p>{{ t('op.sub') }}</p></div></div>
     {% include "_flash.html" %}

@@ -13,6 +13,7 @@ from .. import config
 from ..audit import TIER2, TIER3, require_confirm
 from ..audit import log as audit_log
 from ..db import get_session, set_tenant
+from ..demo_guard import refuse_if_protected
 from ..models import ORG_STATUSES, Branch, Organization, Plan, StatusCount, User, WorkOrder
 from ..services import migration as msvc
 from ..tenancy import UserContext, scoped_where, touch, write_branch_id
@@ -111,6 +112,8 @@ def superadmin_update(oid: int, plan_code: str = Form(""), status: str = Form(""
         raise HTTPException(status_code=404)
     if status not in ORG_STATUSES or not s.exec(select(Plan).where(Plan.code == plan_code)).first():
         raise HTTPException(status_code=400, detail="err.bad_request")
+    if config.DEMO_MODE:                   # public demo: a demo organization cannot be suspended
+        refuse_if_protected(*s.exec(select(User.email).where(User.org_id == oid)).all())
     org.plan_code, org.status = plan_code, status
     touch(org)
     s.add(org)

@@ -28,6 +28,7 @@ from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatc
 from sqlmodel import Session
 
 from . import config
+from .demo_guard import is_protected
 from .models import User, UserSession, utcnow
 
 _ph = PasswordHasher()           # argon2id, library defaults (RFC 9106 low-memory profile)
@@ -189,6 +190,8 @@ chat_limiter = RateLimiter(limit=20, window_s=60)        # per (bot token, Teleg
 
 
 def register_failed_login(user: User) -> None:
+    if is_protected(user.email):     # public demo: a shared account is guarded by the per-IP limiter only
+        return
     user.failed_logins = (user.failed_logins or 0) + 1
     if user.failed_logins >= config.LOGIN_MAX_FAILURES:
         user.locked_until = utcnow() + timedelta(minutes=config.LOGIN_LOCKOUT_MINUTES)

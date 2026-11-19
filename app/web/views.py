@@ -16,6 +16,7 @@ from sqlmodel import Session, col, select
 from ..audit import TIER2
 from ..audit import log as audit_log
 from ..db import get_session
+from ..demo_guard import refuse_if_protected
 from ..models import (
     CLIENT_KINDS,
     ROLE_NET_ADMIN,
@@ -294,6 +295,7 @@ def toggle_user(uid: int, s: Session = Depends(get_session),
         raise HTTPException(status_code=404)
     if u.id == ctx.user_id:
         return _redirect("/settings", "err.self_disable")
+    refuse_if_protected(u.email)                   # public demo: shared accounts stay usable
     u.active = not u.active                        # deactivation also kills live sessions (get_ctx)
     s.add(u)
     audit_log(s, actor=ctx.email, action="toggle_user", tier=TIER2, org_id=ctx.org_id,

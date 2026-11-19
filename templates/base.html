@@ -64,6 +64,9 @@
       </div>
     </div>
     <div class="wrap">
+      {% if DEMO_MODE %}
+      <div class="banner info" role="note">{{ icon('alert') }}<span>{{ t('demo.banner') }}</span></div>
+      {% endif %}
       {% if not ctx.writable %}
       <div class="banner warn" role="status">{{ icon('alert') }}<span>{{ t('plan.readonly') }} <a href="/billing">{{ t('plan.see') }}</a></span></div>
       {% endif %}
