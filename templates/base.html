@@ -69,12 +69,14 @@
       {% endif %}
       {% include "_flash.html" %}
       {% block body %}{% endblock %}
+      <p class="avtorstvo">© 2026 Mykhailo Zvir · <a href="https://github.com/zvirmykhailo1987-cyber/sto/blob/main/LICENSE" rel="license">MIT License</a></p>
     </div>
   </main>
 </div>
 {% else %}
 <main class="solo" id="main">
   {% block solo %}{% endblock %}
+  <p class="avtorstvo">© 2026 Mykhailo Zvir · <a href="https://github.com/zvirmykhailo1987-cyber/sto/blob/main/LICENSE" rel="license">MIT License</a></p>
 </main>
 {% endif %}
 </body>

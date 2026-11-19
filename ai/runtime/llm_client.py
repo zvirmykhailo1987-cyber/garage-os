@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Vendor-agnostic LLM client over the OpenAI-compatible chat-completions API.
 
 Works with a self-hosted model (Ollama, vLLM) or any hosted provider that exposes the

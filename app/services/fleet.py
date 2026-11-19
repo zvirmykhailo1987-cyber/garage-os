@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Fleet contracts: vehicles, spend, mileage-based maintenance and monthly acts.
 All reads are batched (a fixed number of queries regardless of fleet size)."""
 from __future__ import annotations

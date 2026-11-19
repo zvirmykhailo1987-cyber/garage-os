@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """AI features (human-in-the-loop) and the in-browser Telegram assistant simulator.
 
 1. Note → draft work order (fills the intake form; nothing is saved until a human submits).

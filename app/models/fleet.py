@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Fleet customers: a contract, its vehicles, mileage-based maintenance, monthly acts."""
 from __future__ import annotations
 

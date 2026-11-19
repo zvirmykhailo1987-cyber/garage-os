@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Legacy data migration (1C/BAF client export → clients).
 
 1. parse the CSV into a staging preview (nothing is written);

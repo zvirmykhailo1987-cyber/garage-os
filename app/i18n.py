@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """UI strings in English (default) and Ukrainian.
 
 Keys are namespaced (``nav.orders``, ``status.done``). A test asserts that every key

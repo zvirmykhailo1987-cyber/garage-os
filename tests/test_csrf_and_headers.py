@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """CSRF on every state-changing web route, security headers, CSP-compatible templates."""
 import re
 from pathlib import Path

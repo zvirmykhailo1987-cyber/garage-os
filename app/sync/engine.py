@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Sync engine shared by the hub endpoint and the edge client.
 
 Protocol (one round trip, ``POST /sync``)

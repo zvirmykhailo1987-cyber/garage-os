@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Licence-plate lookup.
 
 The stub answers from the caller's OWN vehicles first, then from the global public cache.

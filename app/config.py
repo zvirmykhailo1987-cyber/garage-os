@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Runtime configuration — everything comes from environment variables.
 
 Nothing secret lives in the code. ``STO_ENV=production`` turns every unsafe default

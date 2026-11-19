@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Web-layer dependencies: session → user → tenant context, CSRF, permissions, rendering.
 
 ``get_ctx`` is the only way a web route obtains a ``UserContext``. It

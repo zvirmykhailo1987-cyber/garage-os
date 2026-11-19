@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Security headers on every response (pure ASGI — does not buffer bodies)."""
 from __future__ import annotations
 

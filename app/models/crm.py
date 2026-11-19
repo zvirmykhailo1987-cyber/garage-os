@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """CRM entities. All are tenant rows (org_id + branch_id).
 
 ``Service`` may be organization-wide: ``branch_id=None`` but ``org_id`` set — it is

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Integration ports.
 
 One pattern per channel: a ``Protocol`` (the port), a free offline ``Stub`` that works

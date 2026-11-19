@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Telephony (CTI). The stub logs the incoming call and recognises the caller among the
 tenant's own clients. A paid PBX webhook is a seam."""
 from __future__ import annotations

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Plans, counters, AI run log, sync metadata, Telegram links."""
 from __future__ import annotations
 

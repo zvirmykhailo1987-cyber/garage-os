@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Edge-side sync loop (runs only where ``HUB_URL`` is set).
 
 Each cycle: push dirty rows → on 200 mark them clean and adopt the pull delta; on 409

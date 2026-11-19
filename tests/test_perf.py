@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """N+1 regression: the number of SQL statements per page must not grow with the data."""
 from contextlib import contextmanager
 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Run an AI skill: prompt + JSON schema → validated draft → human-in-the-loop.
 
 * strict output: the result is validated with ``jsonschema``; an invalid LLM answer gets

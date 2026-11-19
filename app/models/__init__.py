@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Model registry — importing this module fills ``SQLModel.metadata``."""
 from .base import BaseRow, TenantMixin, new_uid, utcnow
 from .crm import CLIENT_KINDS, Car, Client, Master, Part, Service

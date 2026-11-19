@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Bot configuration from the environment. There are no defaults for secrets."""
 from __future__ import annotations
 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Integration journals and the audit log.
 
 ``OutboxMessage`` is a transactional outbox: every outgoing customer message is written

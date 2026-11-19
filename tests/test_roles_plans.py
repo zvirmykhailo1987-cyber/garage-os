@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Roles and subscription plans are enforced on the route, not only hidden in templates."""
 from sqlmodel import select
 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Role → permission matrix. Deny by default: a permission not listed here is refused.
 
 The matrix is enforced on the ROUTE (server side). Templates only mirror it to hide

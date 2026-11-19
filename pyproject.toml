@@ -4,6 +4,7 @@ version = "2.0.0"
 description = "Multi-tenant workshop management for auto service-station networks (FastAPI + SQLModel)."
 requires-python = ">=3.12"
 license = "MIT"
+authors = [{ name = "Mykhailo Zvir" }]
 
 [tool.ruff]
 line-length = 130

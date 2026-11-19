@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Application assembly: routers, security middleware, error pages."""
 from __future__ import annotations
 

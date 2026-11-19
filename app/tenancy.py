@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """The single tenant-isolation seam.
 
 Rules (each one has an HTTP regression test):

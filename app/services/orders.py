@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Order domain logic shared by the web UI and the REST API (no HTTP here)."""
 from __future__ import annotations
 

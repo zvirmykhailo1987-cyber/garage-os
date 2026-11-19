@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Passwords (argon2id + legacy rehash), sessions (expiry, revocation), lockout, rate limits."""
 from datetime import timedelta
 

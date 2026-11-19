@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """End-to-end happy paths of the workshop: intake → lines → customer → fiscal; catalog; fleet."""
 from sqlmodel import select
 

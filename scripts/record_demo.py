@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Record the demo walkthrough (docs/demo.webm) and the README screenshots.
 
 Dev-only helper, not part of the app or CI. Needs Playwright with Chromium:

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Deterministic offline extractors — the free fallback when no LLM is configured.
 
 They emit output valid against the same strict JSON schemas as the LLM path. Grounding:

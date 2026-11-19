@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Money maths, AI runtime contract, migration wizard, i18n completeness, demo data, config."""
 import os
 import re

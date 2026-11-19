@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Every screen renders for every role, in both locales, without leaking template errors."""
 import pytest
 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Test harness.
 
 The whole suite runs against SQLite by default. Set ``STO_TEST_DATABASE_URL`` (restricted

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Mykhailo Zvir
 // Runs synchronously in <head>: apply the saved theme before first paint (no flash).
 (function () {
   var root = document.documentElement;

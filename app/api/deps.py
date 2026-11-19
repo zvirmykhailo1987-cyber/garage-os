@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """REST authentication: bearer token → principal bound to ONE tenant."""
 from __future__ import annotations
 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Login, logout, self-signup, branch switch and language switch."""
 from __future__ import annotations
 

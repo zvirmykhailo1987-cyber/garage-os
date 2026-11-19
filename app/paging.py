@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Server-side pagination (LIMIT/OFFSET with a one-row look-ahead)."""
 from __future__ import annotations
 

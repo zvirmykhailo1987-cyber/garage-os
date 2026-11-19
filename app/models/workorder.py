@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Work orders, their labour/part lines and the deterministic money maths.
 
 ``order_totals`` is plain code on purpose: money is never computed by an LLM.

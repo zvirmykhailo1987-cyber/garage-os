@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Risk tiers and the audit log.
 
 Tier 0 read · Tier 1 reversible · Tier 2 impactful (create order, change status) ·

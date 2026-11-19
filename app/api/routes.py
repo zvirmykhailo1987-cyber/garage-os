@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """REST API /api/v1 — Telegram bot, fleet portal, integrations.
 
 Tenant rules: every lookup is inside the token's organization (and its branch, if the

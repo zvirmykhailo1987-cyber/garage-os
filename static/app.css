@@ -410,3 +410,5 @@ textarea{resize:vertical}
 }
 @media print{.side,.branchbar,.no-print,.skip{display:none!important}.app{grid-template-columns:1fr}
   body,.paper{background:#fff;color:#000}.card{box-shadow:none;border-color:#ccc}}
+.avtorstvo{margin:32px 0 8px;font-size:12px;line-height:1.5;color:var(--muted);text-align:center}
+.avtorstvo a{color:inherit;text-decoration:underline;text-underline-offset:2px}

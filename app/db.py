@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Engines, sessions and the per-transaction tenant context for Postgres RLS.
 
 How tenant isolation reaches the database

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Operational commands.
 
     python -m app.manage init            schema + RLS policies (Postgres) + plans (+ demo data

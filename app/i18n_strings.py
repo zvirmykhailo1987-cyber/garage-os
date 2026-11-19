@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """UI string tables. English is the default; Ukrainian mirrors every key."""
 from __future__ import annotations
 

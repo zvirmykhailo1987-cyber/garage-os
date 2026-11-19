@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Offline sync: per-device tokens, tenant-scoped export, optimistic versioning with 409."""
 import json
 

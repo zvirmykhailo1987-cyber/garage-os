@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Customer messages through a transactional outbox.
 
 The stub writes the message with status ``SIMULATED`` (visible in the order card, never

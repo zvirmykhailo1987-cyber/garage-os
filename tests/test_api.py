@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """REST API: bearer tokens, scopes, tenant scoping, Telegram chat binding."""
 from datetime import timedelta
 

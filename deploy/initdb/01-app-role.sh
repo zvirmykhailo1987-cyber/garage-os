@@ -1,4 +1,6 @@
 #!/bin/sh
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
 # Runs once, on the first start of an empty Postgres volume.
 # Creates the restricted role the web process uses: not superuser, no BYPASSRLS, owns nothing.
 set -eu

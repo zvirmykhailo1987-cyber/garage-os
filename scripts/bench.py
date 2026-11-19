@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """HTTP page benchmark on a large synthetic database.
 
 Measures whole pages through the ASGI stack (routing → session lookup → tenant scoping →

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Postgres row-level security (runs only when STO_TEST_DATABASE_URL points at Postgres)."""
 import pytest
 from sqlalchemy import text

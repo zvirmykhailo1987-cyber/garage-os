@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Authentication primitives: passwords, sessions, CSRF, tokens, rate limiting.
 
 * Passwords — argon2id (argon2-cffi). Legacy ``sha256(SECRET+pw)`` hashes from v1 are

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Keeps ``StatusCount`` in step with ``WorkOrder`` inside the same transaction.
 
 A ``before_flush`` hook turns pending inserts / status or branch changes / deletes into

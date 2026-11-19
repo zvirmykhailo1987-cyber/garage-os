@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Tenant isolation: every cross-tenant access answers 404; IDOR on order lines is closed."""
 from sqlmodel import select
 

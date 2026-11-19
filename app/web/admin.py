@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Data migration wizard, subscription page and the platform-operator console."""
 from __future__ import annotations
 

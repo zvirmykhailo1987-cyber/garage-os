@@ -161,4 +161,4 @@ python scripts/record_demo.py           # demo video + screenshots (needs Playwr
 
 ## License
 
-[MIT](LICENSE). Fonts: Inter and JetBrains Mono under the SIL OFL ([static/fonts/OFL.txt](static/fonts/OFL.txt)).
+[MIT](LICENSE) © 2026 Mykhailo Zvir. Keep the copyright notice in copies and derived work. Fonts: Inter and JetBrains Mono under the SIL OFL ([static/fonts/OFL.txt](static/fonts/OFL.txt)).

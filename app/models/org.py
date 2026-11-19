@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mykhailo Zvir
+
 """Tenancy and identity: organizations, branches, users, sessions, tokens."""
 from __future__ import annotations
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Mykhailo Zvir
 // Progressive enhancement only — every form works without JavaScript.
 // No inline handlers anywhere (strict CSP); all behaviour is wired here.
 (function () {
